@@ -1,0 +1,32 @@
+Database Management Systems
+Lab Assignment IV: Web Based Information System Design
+Topic: Online Course Management Platform
+Due: February 11, 2026, 5PM (Individual Submission)
+An Educational Technology Company offers Massively Online Open Courses to its customers. You have to build a
+platform to manage all the data related to the courses, teachers, partner universities, and students.
+The goal of this project is to build a complete web-based information system having a backend database, a connectivity
+server, front end scripts and finally a form-based web interface. Any database server/scripting language can be used
+to build the system. However, the use of a database and scripts are compulsory.
+Design Objectives:
+The goal is to provide a web-based system for using as well managing the online course platform with required
+functionalities and an easy to use interface. The system should provide a system4 for creating new courses and
+programs, create new users of different types, displaying information about courses. It should also generate
+statistics about the course enrolments.
+Users of the System: A. System Administrator B. Instructors C. Students D. Data analyst
+Functional Requirements:
+i. The system must provide an entry page which will be the home page after login. The entry page would
+display various menu based on category of the user.
+ii. The system should allow students to view and search various courses that are offered, and register for
+them.
+iii. The system should allow teachers to add content to a course.
+iv. The system administrator should add teachers to a course and if necessary, add/delete students.
+v. The data analyst should be able to view various statistics about the courses.
+Group size: At most 5 students per group. Time: 2 weeks. ER Diagram to be submitted by next week.
+Submissions and Deliverables:
+i. Demonstration of the project in Lab.
+ii. A report consisting of:
+a. Name and roll number of group members
+b. ER Diagram
+c. Table Schema
+d. List of functionalities implemented
+e. List of front-end tools used

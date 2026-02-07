@@ -1,2 +1,21 @@
+# IDE
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
 venv/
-.vscode
+
+# Node
+node_modules/
+npm-debug.log
+
+# Database
+*.sqlite
+*.db
+
+# OS
+.DS_Store
