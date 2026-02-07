@@ -15,6 +15,8 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r backend/requirements.txt
 
 # Initialize Database (IMPORTANT!)
+# WARNING: Delete existing database first to avoid conflicts
+rm cms_db.sqlite  # Windows: del cms_db.sqlite
 sqlite3 cms_db.sqlite < database/schema.sql
 sqlite3 cms_db.sqlite < database/seed.sql
 
