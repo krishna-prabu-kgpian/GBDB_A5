@@ -50,7 +50,7 @@ These are used by *any* logged-in role.
 **Used in React:** Login page form submit.  
 **Request body:** `{ "username": "<string>", "password": "<string>" }`  
 **Success (`200`) data:**
-- `{"userId": userId, "role":role, "name": name, "email": email, "profileIds": profileIds}`
+- `{"userId": userId, "role":role, "name": name, "email": email}`
 
 **Errors**
 - `401 INVALID_CREDENTIALS`
@@ -61,7 +61,7 @@ These are used by *any* logged-in role.
 ## G2) GET /api/v1/me
 **Purpose:** returns who is logged in + profile IDs for routing (My Courses, My Teaching, etc.).  
 **Used in React:** App bootstrap; cached globally.  
-**Success (`200`) data:** `{ userId, role, name, email, profileIds }`  
+**Success (`200`) data:** `{ userId, role, name, email }`  
 **Errors**
 - `401 UNAUTHENTICATED` (no/invalid cookie/session/token)
 
@@ -166,7 +166,6 @@ These are used by *any* logged-in role.
 **Success (`200`) data:**
 - `user: { userId, username, role:"STUDENT", name, email }`
 - `profileIds: { studentId }`
-- (optional) `token` if you want to auto-login; OR just return success and require login.
 
 **Errors**
 - `400 VALIDATION_ERROR`
