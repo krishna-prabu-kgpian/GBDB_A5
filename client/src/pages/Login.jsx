@@ -28,21 +28,50 @@ const Login = () => {
     };
 
     return (
-        <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc' }}>
-            <h2>Login</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '10px' }}>
-                    <label>Username: </label>
-                    <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required style={{ width: '100%' }} />
+        <div className="detail-page fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
+            <div className="card" style={{ maxWidth: '400px', width: '100%', padding: '40px' }}>
+                <h2 style={{ textAlign: 'center', marginBottom: '20px', color: 'var(--primary)', fontSize: '2rem' }}>Login</h2>
+
+                {error && (
+                    <div style={{ background: '#fee2e2', color: '#b91c1c', padding: '10px', borderRadius: '8px', marginBottom: '20px' }}>
+                        {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit}>
+                    <div style={{ marginBottom: '20px' }}>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: 'var(--text-sub)' }}>Username</label>
+                        <input
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                            placeholder="Enter your username"
+                        />
+                    </div>
+                    <div style={{ marginBottom: '30px' }}>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: 'var(--text-sub)' }}>Password</label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            placeholder="Enter your password"
+                        />
+                    </div>
+                    <button type="submit" className="btn-primary full-width" style={{ padding: '12px' }}>Login</button>
+                </form>
+
+                <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #e5e7eb', fontSize: '0.875rem', color: 'var(--text-sub)' }}>
+                    <p style={{ fontWeight: '600', marginBottom: '10px' }}>Demo Credentials:</p>
+                    <ul style={{ paddingLeft: '20px', margin: 0 }}>
+                        <li>Student: <code>stud1</code> / <code>pass</code></li>
+                        <li>Instructor: <code>inst1</code> / <code>pass</code></li>
+                        <li>Admin: <code>admin</code> / <code>pass</code></li>
+                        <li>Analyst: <code>analyst1</code> / <code>pass</code></li>
+                    </ul>
                 </div>
-                <div style={{ marginBottom: '10px' }}>
-                    <label>Password: </label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ width: '100%' }} />
-                </div>
-                <button type="submit" style={{ padding: '10px 20px' }}>Login</button>
-            </form>
-            <p>Use seed data: stud1/pass, inst1/pass, admin/pass, analyst1/pass</p>
+            </div>
         </div>
     );
 };

@@ -44,50 +44,87 @@ const InstructorDashboard = () => {
     };
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div className="detail-page fade-in">
             <Modal
                 show={modalInfo.show}
                 onClose={closeModal}
                 title={modalInfo.title}
+                onConfirm={modalInfo.onConfirm}
             >
-                <p>{modalInfo.message}</p>
-            </Modal>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <h1>Instructor Dashboard</h1>
-                <button onClick={logout}>Logout</button>
-            </div>
-
-            <h3>My Courses</h3>
-            <ul>
-                {myCourses.map(c => (
-                    <li key={c.course_id}>
-                        {c.name}
-                        <button onClick={() => setSelectedCourse(c.course_id)} style={{ marginLeft: '10px' }}>Select to Add Content</button>
-                    </li>
-                ))}
-            </ul>
-
-            {selectedCourse && (
-                <div style={{ border: '1px solid #ccc', padding: '15px', marginTop: '20px' }}>
-                    <h4>Add Content to Course ID: {selectedCourse}</h4>
+                {modalInfo.isForm ? (
                     <form onSubmit={handleAddContent}>
-                        <div>
-                            <label>Content URL/Text: </label>
-                            <input type="text" value={contentUrl} onChange={(e) => setContentUrl(e.target.value)} required />
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px' }}>Content URL/Text: </label>
+                            <input
+                                type="text"
+                                value={contentUrl}
+                                onChange={(e) => setContentUrl(e.target.value)}
+                                required
+                                style={{ width: '100%', padding: '8px', border: '1px solid #d1d5db', borderRadius: '4px' }}
+                            />
                         </div>
-                        <div>
-                            <label>Type: </label>
-                            <select value={contentType} onChange={(e) => setContentType(e.target.value)}>
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px' }}>Type: </label>
+                            <select
+                                value={contentType}
+                                onChange={(e) => setContentType(e.target.value)}
+                                style={{ width: '100%', padding: '8px', border: '1px solid #d1d5db', borderRadius: '4px' }}
+                            >
                                 <option value="Video">Video</option>
                                 <option value="PDF">PDF</option>
                                 <option value="Assignment">Assignment</option>
                             </select>
                         </div>
-                        <button type="submit" style={{ marginTop: '10px' }}>Add Content</button>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                            <button type="button" onClick={closeModal} className="btn-secondary">Cancel</button>
+                            <button type="submit" className="btn-primary">Add Content</button>
+                        </div>
                     </form>
+                ) : (
+                    <p>{modalInfo.message}</p>
+                )}
+            </Modal>
+
+            <div className="nav-header">
+                <div>
+                    <h1>Instructor Dashboard</h1>
+                    <p className="sub-text">Welcome back, {user.name}!</p>
                 </div>
-            )}
+                <button onClick={logout} className="btn-primary" style={{ backgroundColor: '#ef4444' }}>Logout</button>
+            </div>
+
+            <section className="dashboard-section">
+                <h2>My Courses</h2>
+                {myCourses.length > 0 ? (
+                    <div className="course-grid">
+                        {myCourses.map(c => (
+                            <div key={c.course_id} className="course-card">
+                                <div style={{ marginBottom: '15px' }}>
+                                    <h3>{c.name}</h3>
+                                    <p className="sub-text">Course ID: {c.course_id}</p>
+                                </div>
+                                <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '15px' }}>
+                                    <button
+                                        className="btn-primary full-width"
+                                        onClick={() => {
+                                            setSelectedCourse(c.course_id);
+                                            setModalInfo({
+                                                show: true,
+                                                title: `Add Content to ${c.name}`,
+                                                isForm: true
+                                            });
+                                        }}
+                                    >
+                                        Manage Content
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p>You are not assigned to any courses yet.</p>
+                )}
+            </section>
         </div>
     );
 };

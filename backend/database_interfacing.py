@@ -26,6 +26,12 @@ def enroll_student_db(student_id, course_id):
         return False, str(e)
 
 def assign_instructor_db(instructor_id, course_id):
+    # Check if already assigned
+    existing = query_db('SELECT * FROM Teaches WHERE Instructor_ID = ? AND Course_ID = ?', 
+                        (instructor_id, course_id), one=True)
+    if existing:
+        return False, 'Instructor already assigned to this course'
+
     try:
         query_db('INSERT INTO Teaches (Instructor_ID, Course_ID) VALUES (?, ?)',
                  (instructor_id, course_id))

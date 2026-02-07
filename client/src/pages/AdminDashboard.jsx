@@ -72,9 +72,21 @@ const AdminDashboard = () => {
         if (!userToDelete) return;
         try {
             await api.delete(`/admin/user/${userToDelete}`);
-            setModalInfo({ show: true, title: 'Success', message: 'User deleted successfully' }); // Reset to simple alert
-            setUserToDelete(null); // Clear pending delete
-            fetchUsers();
+            // Close the confirmation modal first to avoid flickering transition
+            setModalInfo({ ...modalInfo, show: false });
+            setUserToDelete(null);
+
+            // Re-fetch users
+            await fetchUsers();
+
+            // Optional: Show success toast or small notification instead of another full modal?
+            // For now, let's just show a success modal but with a slight delay or clean state
+            // actually, just refreshing the table is often enough feedback if the row disappears.
+            // But to be explicit:
+            setTimeout(() => {
+                setModalInfo({ show: true, title: 'Success', message: 'User deleted successfully', onConfirm: null });
+            }, 300);
+
         } catch (err) {
             setModalInfo({ show: true, title: 'Error', message: 'Delete failed' });
             setUserToDelete(null);
@@ -83,7 +95,9 @@ const AdminDashboard = () => {
 
     const closeModal = () => {
         setModalInfo({ ...modalInfo, show: false });
-        setUserToDelete(null); // Clear selection on close
+        // Delay clearing userToDelete to prevents content jumping while modal fades out (if animated)
+        // But here we don't have animation, so it's fine. 
+        setTimeout(() => setUserToDelete(null), 100);
     };
 
     return (

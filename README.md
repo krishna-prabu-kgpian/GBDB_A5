@@ -39,8 +39,17 @@ python -m backend.app
     psql -d cms_db -f database/seed_postgres.sql
     ```
 
-3.  **Configuration**
-    Ensure `backend/config.py` has correct credentials if changed from default.
+4.  **Reset Database (Optional)**
+    To wipe the database and restore seed data:
+    ```bash
+    python reset_db.py
+    ```
+
+### 3. Key Features
+- **Premium UI**: Modern card-based layouts for Students and Instructors.
+- **Role-Based Dashboards**: tailored views for Students, Instructors, Admins, and Analysts.
+- **Secure Authentication**: JWT-based login with role protection.
+- **PostgreSQL**: Robust database backend.
 
 
 

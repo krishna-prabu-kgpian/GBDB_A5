@@ -7,14 +7,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import InstructorDashboard from './pages/InstructorDashboard';
 import AdminDashboardLoaded from './pages/AdminDashboard';
 import AnalystDashboardLoaded from './pages/AnalystDashboard';
-// Import other dashboards placeholders if not yet created or create them inline/simulated for now
-// To save turns, I'll create simple inline components for Admin/Analyst if I don't create separate files, 
-// BUT I said I would create separate files. I will create them in the next turn or bundle them here if possible.
-// I will create simple placeholders for Admin/Analyst for now to ensure App.jsx compiles, then update/create them.
-
-
-
-// Actually I will write the Admin/Analyst files in this turn too.
+import CourseDetailPage from './pages/CourseDetailPage';
 
 const App = () => {
   return (
@@ -31,6 +24,14 @@ const App = () => {
             }
           />
           <Route
+            path="/courses/:courseId"
+            element={
+              <ProtectedRoute allowedRoles={['Student', 'Administrator', 'Instructor']}>
+                <CourseDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/instructor"
             element={
               <ProtectedRoute allowedRoles={['Instructor']}>
@@ -42,7 +43,6 @@ const App = () => {
             path="/admin"
             element={
               <ProtectedRoute allowedRoles={['Administrator']}>
-                {/* Using dynamic import or assumes AdminDashboard.jsx exists */}
                 <AdminDashboardLoaded />
               </ProtectedRoute>
             }
@@ -61,6 +61,5 @@ const App = () => {
     </Router>
   );
 };
-
 
 export default App;

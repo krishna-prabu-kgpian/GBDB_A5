@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
 
 const StudentDashboard = () => {
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const [courses, setCourses] = useState([]);
     const [myCourses, setMyCourses] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -33,26 +35,12 @@ const StudentDashboard = () => {
         }
     };
 
-    const handleEnroll = async (courseId) => {
-        try {
-            await api.post('/student/enroll', { student_id: user.user_id, course_id: courseId });
-            setModalInfo({ show: true, title: 'Success', message: 'Enrolled successfully!' });
-            fetchMyCourses();
-        } catch (err) {
-            setModalInfo({
-                show: true,
-                title: 'Error',
-                message: err.response?.data?.error || 'Enrollment failed'
-            });
-        }
-    };
-
     const closeModal = () => {
         setModalInfo({ ...modalInfo, show: false });
     };
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div className="detail-page fade-in">
             <Modal
                 show={modalInfo.show}
                 onClose={closeModal}
@@ -61,37 +49,61 @@ const StudentDashboard = () => {
                 <p>{modalInfo.message}</p>
             </Modal>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <h1>Student Dashboard</h1>
-                <button onClick={logout}>Logout</button>
+            <div className="nav-header">
+                <div>
+                    <h1>Student Dashboard</h1>
+                    <p className="sub-text">Welcome back, {user.name}!</p>
+                </div>
+                <button onClick={logout} className="btn-primary" style={{ backgroundColor: '#ef4444' }}>Logout</button>
             </div>
 
-            <h3>My Enrolled Courses</h3>
-            <ul>
-                {myCourses.map(c => (
-                    <li key={c.course_id}>{c.name} (Score: {c.score !== null ? c.score : 'N/A'})</li>
-                ))}
-            </ul>
-
-            <hr />
-
-            <h3>Available Courses</h3>
-            <input
-                type="text"
-                placeholder="Search courses..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button onClick={fetchCourses}>Search</button>
-
-            <div style={{ marginTop: '10px' }}>
-                {courses.map(c => (
-                    <div key={c.course_id} style={{ border: '1px solid #eee', padding: '10px', margin: '5px 0' }}>
-                        <strong>{c.name}</strong> - {c.duration} weeks - ${c.fees}
-                        <button onClick={() => handleEnroll(c.course_id)} style={{ marginLeft: '10px' }}>Enroll</button>
+            <section className="dashboard-section">
+                <h2>My Enrolled Courses</h2>
+                {myCourses.length > 0 ? (
+                    <div className="course-grid">
+                        {myCourses.map(c => (
+                            <div key={c.course_id} className="course-card" onClick={() => navigate(`/courses/${c.course_id}`)}>
+                                <h3>{c.name}</h3>
+                                <div className="detail-meta">
+                                    <span className="badge">Enrolled</span>
+                                    {c.score !== null && <span className="badge price">Score: {c.score}</span>}
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
+                ) : <p>You haven't enrolled in any courses yet.</p>}
+            </section>
+
+            <hr style={{ margin: '40px 0', border: '0', borderTop: '1px solid #e5e7eb' }} />
+
+            <section className="dashboard-section">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h2>Available Courses</h2>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                    <input
+                        type="text"
+                        placeholder="Search courses..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <button onClick={fetchCourses} className="btn-primary">Search</button>
+                </div>
+
+                <div className="course-grid">
+                    {courses.filter(c => !myCourses.some(mc => mc.course_id === c.course_id)).map(c => (
+                        <div key={c.course_id} className="course-card" onClick={() => navigate(`/courses/${c.course_id}`)}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                                <h3>{c.name}</h3>
+                                <span className="badge price">${c.fees}</span>
+                            </div>
+                            <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>Duration: {c.duration} weeks</p>
+                            <button className="btn-primary full-width" style={{ marginTop: '10px' }}>View Details</button>
+                        </div>
+                    ))}
+                </div>
+            </section>
         </div>
     );
 };
