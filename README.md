@@ -1,3 +1,49 @@
+# Course Management System (CMS)
+
+## 🚀 Quick Start Guide
+
+### 1. Backend Setup (Flask)
+```bash
+# Navigate to root
+cd FINAL_PRJDBMS
+
+# Set up virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r backend/requirements.txt
+
+# Initialize Database (IMPORTANT!)
+sqlite3 cms_db.sqlite < database/schema.sql
+sqlite3 cms_db.sqlite < database/seed.sql
+
+# Run Server
+python -m backend.app
+```
+*   Backend runs on: `http://127.0.0.1:5001`
+
+### 2. Frontend Setup (React)
+```bash
+# Open a new terminal
+cd client
+
+# Install dependencies
+npm install
+
+# Run Frontend
+npm run dev
+```
+*   Frontend runs on: `http://localhost:5173`
+
+### 3. Default Credentials
+*   **Admin**: `admin` / `pass`
+*   **Instructor**: `inst1` / `pass`
+*   **Student**: `stud1` / `pass`
+*   **Analyst**: `analyst1` / `pass`
+
+---
+
 ## Work Division
 1. Rahul responsible for frontend involving Student and Analyst (READ API CALLS OF GLOBAL, STUDENT AND ANALYST)
 2. Arnav responsible for frontend involving Admin and Instructor (READ API CALLS OF GLOBAL, ADMIN AND INSTRUCTOR)
