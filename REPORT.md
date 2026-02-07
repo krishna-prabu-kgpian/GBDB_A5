@@ -11,7 +11,7 @@
 ---
 
 ### b. ER Diagram
-*Please refer to the ER Diagram Submitted in the last assignment. The Table Schema below implements this design.*
+*Please refer to the ER Diagram Submitted in the last week. The Table Schema below implements this design.*
 
 ---
 
