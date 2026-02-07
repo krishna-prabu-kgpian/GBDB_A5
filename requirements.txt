@@ -1,2 +1,2 @@
 flask
-flask_cors
+flask_corspsycopg2-binary
