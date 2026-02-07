@@ -50,9 +50,7 @@ These are used by *any* logged-in role.
 **Used in React:** Login page form submit.  
 **Request body:** `{ "username": "<string>", "password": "<string>" }`  
 **Success (`200`) data:**
-- `token: string` *(optional if you are purely session-cookie based; include if you later support JWT)*
-- `user: { userId, username, role, name, email }`
-- `profileIds: { studentId?, instructorId?, adminId?, analystId? }`
+- `{"userId": userId, "role":role, "name": name, "email": email, "profileIds": profileIds}`
 
 **Errors**
 - `401 INVALID_CREDENTIALS`
