@@ -14,21 +14,18 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 # Install dependencies
 pip install -r backend/requirements.txt
 
-# Initialize Database (IMPORTANT!)
-# WARNING: Delete existing database first to avoid conflicts
-rm cms_db.sqlite  # Windows: del cms_db.sqlite
-sqlite3 cms_db.sqlite < database/schema.sql
-sqlite3 cms_db.sqlite < database/seed.sql
+# Initialize Database (PostgreSQL)
+# Ensure Postgres service is running
+createdb cms_db
+psql -d cms_db -f database/schema_postgres.sql
+psql -d cms_db -f database/seed_postgres.sql
 
 # Run Server
 python -m backend.app
 ```
 *   Backend runs on: `http://127.0.0.1:5001`
-*   **Note:** By default, it looks for PostgreSQL. Verify `backend/config.py`.
 
-### 1b. Database Setup (PostgreSQL - Recommended)
-The application defaults to PostgreSQL.
-
+### 1b. Database Setup (PostgreSQL)
 1.  **Install & Start PostgreSQL**
     ```bash
     brew install postgresql@14
@@ -43,16 +40,8 @@ The application defaults to PostgreSQL.
     ```
 
 3.  **Configuration**
-    Ensure `backend/config.py` has `DATABASE_TYPE = 'postgres'`.
+    Ensure `backend/config.py` has correct credentials if changed from default.
 
-### 1c. Database Setup (SQLite - Alternative)
-If you prefer SQLite:
-1.  Edit `backend/config.py` and set `DATABASE_TYPE = 'sqlite'`.
-2.  Initialize the DB:
-    ```bash
-    sqlite3 cms_db.sqlite < database/schema.sql
-    sqlite3 cms_db.sqlite < database/seed.sql
-    ```
 
 
 ### 2. Frontend Setup (React)

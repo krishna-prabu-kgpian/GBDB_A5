@@ -12,8 +12,7 @@ student_bp = Blueprint('student', __name__)
 @student_bp.route('/courses', methods=['GET'])
 def get_courses():
     search = request.args.get('search', '')
-    query = "SELECT Course_ID as course_id, Name as name, Duration as duration, Fees as fees FROM Course WHERE Name LIKE ?" # SQLite uses LIKE (case-insensitive by default in some configurations or use UPPER)
-    # Actually SQLite LIKE is case-insensitive for ASCII.
+    query = "SELECT Course_ID as course_id, Name as name, Duration as duration, Fees as fees FROM Course WHERE Name ILIKE ?" 
     courses = query_db(query, (f'%{search}%',))
     return jsonify(courses if courses else [])
 

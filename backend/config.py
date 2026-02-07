@@ -2,10 +2,7 @@ import os
 
 class Config:
     # Database Configuration
-    DATABASE_TYPE = os.getenv('DATABASE_TYPE', 'postgres') # 'sqlite' or 'postgres'
-    
-    # SQLite
-    DATABASE = os.path.join(os.path.dirname(__file__), '..', 'cms_db.sqlite')
+    DATABASE_TYPE = 'postgres'
     
     # Postgres
     DB_NAME = os.getenv('DB_NAME', 'cms_db')
