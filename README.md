@@ -8,7 +8,7 @@
 > **Roles (Naming Convention):** `ADMIN`, `STUDENT`, `INSTRUCTOR`, `ANALYST`  
 > **Response Convention:**  
 > - Success: `{ "data": … , "meta": ... }` (object or list depending on the endpoint)  
-> - Error: `{ "error": { "code": "<STRING>", "message": "<STRING>", "details": <Object optional> } }`  
+> - Error: `{ "error": "<string>" }`  
 > **HTTP Codes:**  
 > - `200` OK  
 > - `400` validation / malformed inputs  
@@ -50,9 +50,7 @@ These are used by *any* logged-in role.
 **Used in React:** Login page form submit.  
 **Request body:** `{ "username": "<string>", "password": "<string>" }`  
 **Success (`200`) data:**
-- `token: string` *(optional if you are purely session-cookie based; include if you later support JWT)*
-- `user: { userId, username, role, name, email }`
-- `profileIds: { studentId?, instructorId?, adminId?, analystId? }`
+- `{"userId": userId, "role":role, "name": name, "email": email}`
 
 **Errors**
 - `401 INVALID_CREDENTIALS`
@@ -63,7 +61,7 @@ These are used by *any* logged-in role.
 ## G2) GET /api/v1/me
 **Purpose:** returns who is logged in + profile IDs for routing (My Courses, My Teaching, etc.).  
 **Used in React:** App bootstrap; cached globally.  
-**Success (`200`) data:** `{ userId, role, name, email, profileIds }`  
+**Success (`200`) data:** `{ userId, role, name, email }`  
 **Errors**
 - `401 UNAUTHENTICATED` (no/invalid cookie/session/token)
 
@@ -168,7 +166,6 @@ These are used by *any* logged-in role.
 **Success (`200`) data:**
 - `user: { userId, username, role:"STUDENT", name, email }`
 - `profileIds: { studentId }`
-- (optional) `token` if you want to auto-login; OR just return success and require login.
 
 **Errors**
 - `400 VALIDATION_ERROR`
@@ -560,7 +557,7 @@ These are used by *any* logged-in role.
 ---
 
 # Backend Function Templates (Inputs → Outputs)
-
+NOTE - If at any point something is wrong (wrong authentication, wrong/invalid request, ensure you return None)
 ## Types
 - `Role = "ADMIN" | "STUDENT" | "INSTRUCTOR" | "ANALYST"`
 - `ActorContext = { userId:int, role:Role, profileIds:{ studentId?:int, instructorId?:int, adminId?:int, analystId?:int } }`
@@ -570,7 +567,7 @@ These are used by *any* logged-in role.
 ## AuthService
 
 ### login
-- `login(username:str, password:str) -> { userId:int, role:Role, name:str, email:str, profileIds:dict }`
+- `login(username:str, password:str) -> { userId:int, role:Role, name:str, email:str, profileIds:dict } if username and password matches else None`
 
 ### signup_student
 - `signup_student(payload:{ username:str, password:str, name:str, email:str, country:str, category:str, skillLevel:str, age:int }) -> { userId:int, role:"STUDENT", profileIds:{ studentId:int } }`
@@ -784,3 +781,9 @@ These are used by *any* logged-in role.
 - `enrollments_by_university(actor:ActorContext, filters:{ from?:str, to?:str, top?:int, topicId?:int, programId?:int, courseId?:int }) -> list[{ universityId:int, universityName:str, enrollments:int }]`
 
 ---
+
+# Database Function Templates
+
+- `get_conn() -> Connection to database`
+- `close_conn(conn:Connection) -> None`
+  Add others here (Ketan and Shreeraj decide)
