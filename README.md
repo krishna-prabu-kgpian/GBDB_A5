@@ -560,7 +560,7 @@ These are used by *any* logged-in role.
 ---
 
 # Backend Function Templates (Inputs → Outputs)
-
+NOTE - If at any point something is wrong (wrong authentication, wrong/invalid request, ensure you return None)
 ## Types
 - `Role = "ADMIN" | "STUDENT" | "INSTRUCTOR" | "ANALYST"`
 - `ActorContext = { userId:int, role:Role, profileIds:{ studentId?:int, instructorId?:int, adminId?:int, analystId?:int } }`
@@ -570,7 +570,7 @@ These are used by *any* logged-in role.
 ## AuthService
 
 ### login
-- `login(username:str, password:str) -> { userId:int, role:Role, name:str, email:str, profileIds:dict }`
+- `login(username:str, password:str) -> { userId:int, role:Role, name:str, email:str, profileIds:dict } if username and password matches else None`
 
 ### signup_student
 - `signup_student(payload:{ username:str, password:str, name:str, email:str, country:str, category:str, skillLevel:str, age:int }) -> { userId:int, role:"STUDENT", profileIds:{ studentId:int } }`
