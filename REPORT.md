@@ -13,7 +13,7 @@
 ---
 
 ### c. Table Schema
-The database is implemented in **PostgreSQL**. The schema includes the following tables supporting the IS-A relationships and interactions defined in the ERD.
+The database is implemented in **SQLite**. The schema includes the following tables supporting the IS-A relationships and interactions defined in the ERD.
 
 #### Core Hierarchy (IS-A Users)
 - **Users**: `User_ID` (PK), `Username`, `Password`, `Role`, `Name`, `Email`
