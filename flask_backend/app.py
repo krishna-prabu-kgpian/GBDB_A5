@@ -29,5 +29,29 @@ def login():
 def me():
     if 'userId' not in session:
         return jsonify({'error': "Not Authenticated"}), 401
+    else:
+        return jsonify(dbfuncts.USER_get_by_id(session['userId'])), 200
+
+@app.route('/api/v1/entry', methods=['GET'])
+def entry():
+    if 'userId' not in session:
+        return jsonify({'error': "Not Authenticated"}), 401
     
+    else:
+        userInfo = dbfuncts.USER_get_by_id(session['userId'])
+        response = {}
+        response['role'] = userInfo['role']
+        if userInfo['role'] == 'STUDENT':
+            pass
+        elif userInfo['role'] == 'ADMIN':
+            pass
+        elif userInfo['role'] == 'INSTRUCTOR':
+            pass
+        else:
+            pass
+        
+        return jsonify(response), 200
     
+@app.route('/api/v1/courses', methods=['GET'])
+def courses():
+    pass   
