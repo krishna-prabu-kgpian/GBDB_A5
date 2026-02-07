@@ -576,153 +576,153 @@ NOTE - If at any point something is wrong (wrong authentication, wrong/invalid r
 
 ## UserRepo (User table)
 
-- `get_by_username(username:str) -> { userId:int, username:str, passwordHash:str, role:Role, name:str, email:str } | None`
-- `get_by_id(userId:int) -> { userId:int, username:str, role:Role, name:str, email:str } | None`
-- `username_exists(username:str) -> bool`
-- `insert_user(payload:{ username:str, passwordHash:str, role:Role, name:str, email:str }) -> userId:int`
-- `list_users(filters:{ role?:Role, q?:str }, page:int, pageSize:int) -> { items:list[{ userId:int, username:str, name:str, role:Role }], total:int }`
+- `USER_get_by_username(username:str) -> { userId:int, username:str, passwordHash:str, role:Role, name:str, email:str } | None`
+- `USER_get_by_id(userId:int) -> { userId:int, username:str, role:Role, name:str, email:str } | None`
+- `USER_username_exists(username:str) -> bool`
+- `USER_insert_user(payload:{ username:str, passwordHash:str, role:Role, name:str, email:str }) -> userId:int`
+- `USER_list_users(filters:{ role?:Role, q?:str }, page:int, pageSize:int) -> { items:list[{ userId:int, username:str, name:str, role:Role }], total:int }`
 
 ---
 
 ## StudentRepo (Student table)
 
-- `insert_student(userId:int, payload:{ country:str, category:str, skillLevel:str, age:int }) -> studentId:int`
-- `get_by_userId(userId:int) -> { studentId:int, userId:int, country:str, category:str, skillLevel:str, age:int } | None`
-- `get_by_id(studentId:int) -> { studentId:int, userId:int, country:str, category:str, skillLevel:str, age:int } | None`
+- `STUDENT_insert_student(userId:int, payload:{ country:str, category:str, skillLevel:str, age:int }) -> studentId:int`
+- `STUDENT_get_by_userId(userId:int) -> { studentId:int, userId:int, country:str, category:str, skillLevel:str, age:int } | None`
+- `STUDENT_get_by_id(studentId:int) -> { studentId:int, userId:int, country:str, category:str, skillLevel:str, age:int } | None`
 
 ---
 
 ## InstructorRepo (Instructor table)
 
-- `insert_instructor(userId:int, payload:{ experience:int }) -> instructorId:int`
-- `get_by_userId(userId:int) -> { instructorId:int, userId:int, experience:int } | None`
-- `get_by_id(instructorId:int) -> { instructorId:int, userId:int, experience:int } | None`
+- `INSTRUCTOR_insert_instructor(userId:int, payload:{ experience:int }) -> instructorId:int`
+- `INSTRUCTOR_get_by_userId(userId:int) -> { instructorId:int, userId:int, experience:int } | None`
+- `INSTRUCTOR_get_by_id(instructorId:int) -> { instructorId:int, userId:int, experience:int } | None`
 
 ---
 
 ## AdminRepo (Administrator table)
 
-- `insert_admin(userId:int) -> adminId:int`
-- `get_by_userId(userId:int) -> { adminId:int, userId:int } | None`
+- `ADMIN_insert_admin(userId:int) -> adminId:int`
+- `ADMIN_get_by_userId(userId:int) -> { adminId:int, userId:int } | None`
 
 ---
 
 ## AnalystRepo (Data_Analyst table)
 
-- `insert_analyst(userId:int) -> analystId:int`
-- `get_by_userId(userId:int) -> { analystId:int, userId:int } | None`
+- `ANALYST_insert_analyst(userId:int) -> analystId:int`
+- `ANALYST_get_by_userId(userId:int) -> { analystId:int, userId:int } | None`
 
 ---
 
 ## ProfileRepo (helper)
 
-- `get_profile_ids(userId:int, role:Role) -> { studentId?:int, instructorId?:int, adminId?:int, analystId?:int }`
+- `PROFILE_get_profile_ids(userId:int, role:Role) -> { studentId?:int, instructorId?:int, adminId?:int, analystId?:int }`
 
 ---
 
 ## CourseRepo (Course table)
 
-- `insert_course(payload:{ name:str, duration:int, fees:float }) -> courseId:int`
-- `get_by_id(courseId:int) -> { courseId:int, name:str, duration:int, fees:float } | None`
-- `search(filters:{ q?:str, topicId?:int, programId?:int, universityId?:int, minFees?:float, maxFees?:float }, page:int, pageSize:int) -> { items:list[{ courseId:int, name:str, duration:int, fees:float }], total:int }`
+- `COURSE_insert_course(payload:{ name:str, duration:int, fees:float }) -> courseId:int`
+- `COURSE_get_by_id(courseId:int) -> { courseId:int, name:str, duration:int, fees:float } | None`
+- `COURSE_search(filters:{ q?:str, topicId?:int, programId?:int, universityId?:int, minFees?:float, maxFees?:float }, page:int, pageSize:int) -> { items:list[{ courseId:int, name:str, duration:int, fees:float }], total:int }`
 
 ---
 
 ## TopicRepo (Topic table)
 
-- `insert_topic(payload:{ name:str }) -> topicId:int`
-- `get_by_id(topicId:int) -> { topicId:int, name:str } | None`
-- `list_all() -> list[{ topicId:int, name:str }]`
+- `TOPIC_insert_topic(payload:{ name:str }) -> topicId:int`
+- `TOPIC_get_by_id(topicId:int) -> { topicId:int, name:str } | None`
+- `TOPIC_list_all() -> list[{ topicId:int, name:str }]`
 
 ---
 
 ## ProgramRepo (Program table)
 
-- `insert_program(payload:{ name:str, progType:str, duration:int }) -> programId:int`
-- `get_by_id(programId:int) -> { programId:int, name:str, progType:str, duration:int } | None`
-- `list_all() -> list[{ programId:int, name:str, progType:str, duration:int }]`
+- `PROGRAM_insert_program(payload:{ name:str, progType:str, duration:int }) -> programId:int`
+- `PROGRAM_get_by_id(programId:int) -> { programId:int, name:str, progType:str, duration:int } | None`
+- `PROGRAM_list_all() -> list[{ programId:int, name:str, progType:str, duration:int }]`
 
 ---
 
 ## UniversityRepo (Partner_University table)
 
-- `insert_university(payload:{ name:str }) -> universityId:int`
-- `get_by_id(universityId:int) -> { universityId:int, name:str } | None`
-- `list_all() -> list[{ universityId:int, name:str }]`
+- `UNIVERSITY_insert_university(payload:{ name:str }) -> universityId:int`
+- `UNIVERSITY_get_by_id(universityId:int) -> { universityId:int, name:str } | None`
+- `UNIVERSITY_list_all() -> list[{ universityId:int, name:str }]`
 
 ---
 
 ## TextbookRepo (Textbook table)
 
-- `insert_textbook(payload:{ isbn:int, title:str, author:str }) -> isbn:int`
-- `get_by_isbn(isbn:int) -> { isbn:int, title:str, author:str } | None`
-- `list_all() -> list[{ isbn:int, title:str, author:str }]`
+- `TEXTBOOK_insert_textbook(payload:{ isbn:int, title:str, author:str }) -> isbn:int`
+- `TEXTBOOK_get_by_isbn(isbn:int) -> { isbn:int, title:str, author:str } | None`
+- `TEXTBOOK_list_all() -> list[{ isbn:int, title:str, author:str }]`
 
 ---
 
 ## EnrollmentRepo (Enrollment table)
 
-- `exists(studentId:int, courseId:int) -> bool`
-- `insert(studentId:int, courseId:int, enrollmentDate:str) -> { studentId:int, courseId:int, enrollmentDate:str, score:float|None }`
-- `delete(studentId:int, courseId:int) -> bool`
-- `list_by_student(studentId:int) -> list[{ courseId:int, courseName:str, enrollmentDate:str, score:float|None }]`
+- `ENROLLMENT_exists(studentId:int, courseId:int) -> bool`
+- `ENROLLMENT_insert(studentId:int, courseId:int, enrollmentDate:str) -> { studentId:int, courseId:int, enrollmentDate:str, score:float|None }`
+- `ENROLLMENT_delete(studentId:int, courseId:int) -> bool`
+- `ENROLLMENT_list_by_student(studentId:int) -> list[{ courseId:int, courseName:str, enrollmentDate:str, score:float|None }]`
 
 ---
 
 ## TeachesRepo (Teaches table)
 
-- `exists(instructorId:int, courseId:int) -> bool`
-- `insert(instructorId:int, courseId:int) -> bool`
-- `delete(instructorId:int, courseId:int) -> bool`
-- `list_courses_by_instructor(instructorId:int) -> list[{ courseId:int, name:str, duration:int, fees:float }]`
-- `list_instructors_by_course(courseId:int) -> list[{ instructorId:int, name:str, experience:int }]`
+- `TEACHES_exists(instructorId:int, courseId:int) -> bool`
+- `TEACHES_insert(instructorId:int, courseId:int) -> bool`
+- `TEACHES_delete(instructorId:int, courseId:int) -> bool`
+- `TEACHES_list_courses_by_instructor(instructorId:int) -> list[{ courseId:int, name:str, duration:int, fees:float }]`
+- `TEACHES_list_instructors_by_course(courseId:int) -> list[{ instructorId:int, name:str, experience:int }]`
 
 ---
 
 ## ContentRepo (Course_content table)
 
-- `insert_content(payload:{ url:str, type:str }) -> contentId:int`
-- `get_by_id(contentId:int) -> { contentId:int, url:str, type:str } | None`
+- `CONTENT_insert_content(payload:{ url:str, type:str }) -> contentId:int`
+- `CONTENT_get_by_id(contentId:int) -> { contentId:int, url:str, type:str } | None`
 
 ---
 
 ## IncludesRepo (Includes table)
 
-- `link(courseId:int, contentId:int) -> bool`
-- `unlink(courseId:int, contentId:int) -> bool`
-- `list_content(courseId:int) -> list[{ contentId:int, url:str, type:str }]`
+- `INCLUDES_link(courseId:int, contentId:int) -> bool`
+- `INCLUDES_unlink(courseId:int, contentId:int) -> bool`
+- `INCLUDES_list_content(courseId:int) -> list[{ contentId:int, url:str, type:str }]`
 
 ---
 
 ## CoversRepo (Covers table)
 
-- `link(courseId:int, topicId:int) -> bool`
-- `unlink(courseId:int, topicId:int) -> bool`
-- `list_topics(courseId:int) -> list[{ topicId:int, name:str }]`
+- `COVERS_link(courseId:int, topicId:int) -> bool`
+- `COVERS_unlink(courseId:int, topicId:int) -> bool`
+- `COVERS_list_topics(courseId:int) -> list[{ topicId:int, name:str }]`
 
 ---
 
 ## PartOfRepo (Part_of table)
 
-- `link(courseId:int, programId:int) -> bool`
-- `unlink(courseId:int, programId:int) -> bool`
-- `list_programs(courseId:int) -> list[{ programId:int, name:str, progType:str, duration:int }]`
+- `PARTOF_link(courseId:int, programId:int) -> bool`
+- `PARTOF_unlink(courseId:int, programId:int) -> bool`
+- `PARTOF_list_programs(courseId:int) -> list[{ programId:int, name:str, progType:str, duration:int }]`
 
 ---
 
 ## OffersRepo (Offers table)
 
-- `link(courseId:int, universityId:int) -> bool`
-- `unlink(courseId:int, universityId:int) -> bool`
-- `list_universities(courseId:int) -> list[{ universityId:int, name:str }]`
+- `OFFERS_link(courseId:int, universityId:int) -> bool`
+- `OFFERS_unlink(courseId:int, universityId:int) -> bool`
+- `OFFERS_list_universities(courseId:int) -> list[{ universityId:int, name:str }]`
 
 ---
 
 ## ReferenceRepo (Reference table)
 
-- `link(courseId:int, isbn:int) -> bool`
-- `unlink(courseId:int, isbn:int) -> bool`
-- `list_textbooks(courseId:int) -> list[{ isbn:int, title:str, author:str }]`
+- `REFERENCES_link(courseId:int, isbn:int) -> bool`
+- `REFERENCES_unlink(courseId:int, isbn:int) -> bool`
+- `REFERENCES_list_textbooks(courseId:int) -> list[{ isbn:int, title:str, author:str }]`
 
 ---
 
