@@ -2,8 +2,11 @@
 ## Online Course Management Platform
 
 **Group Members:**
-- [Your Name] (Roll No: [Your Roll No])
-- [Partner Name] (Roll No: [Partner Roll No])
+- Rahul Patne (23CS10084)
+- Arnav Priyadarshi (23CS30008)
+- Krishna Prabu (23CS30028)
+- Ketan Suman (23CS30027)
+- Shreeraj Kalbande (23CS30025)
 
 ---
 
