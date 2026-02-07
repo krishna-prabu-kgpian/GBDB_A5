@@ -7,7 +7,7 @@ app.config.from_object(Config)
 app.config.from_object(Config)
 CORS(app) # Default allows all origins for all routes
 
-from .db import close_db
+from .database_connection import close_db
 
 @app.teardown_appcontext
 def teardown_db(error):

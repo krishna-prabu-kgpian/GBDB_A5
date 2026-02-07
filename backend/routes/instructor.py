@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from ..db import query_db, get_db
+from ..database_connection import query_db, get_db
 
 instructor_bp = Blueprint('instructor', __name__)
 
@@ -24,7 +24,7 @@ def add_content():
     if not all([course_id, content_url, content_type]):
         return jsonify({'error': 'Missing fields'}), 400
         
-    from ..db import add_course_content_db
+    from ..database_interfacing import add_course_content_db
     success, message = add_course_content_db(course_id, content_url, content_type)
     
     if success:

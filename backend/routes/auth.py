@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
-from ..db import query_db, get_db
+from ..database_connection import query_db, get_db
 import jwt
 import datetime
 
@@ -15,7 +15,7 @@ def login():
         return jsonify({'error': 'Username and password required'}), 400
 
     # In a real app, hash checking would happen here. For this assignment, plain text checking or simple comparison
-    from ..db import get_user_by_username_db
+    from ..database_interfacing import get_user_by_username_db
     user = get_user_by_username_db(username)
     
     if user: 
@@ -61,7 +61,7 @@ def register():
     if not all([username, password, role, name, email]):
         return jsonify({'error': 'Missing required fields'}), 400
         
-    from ..db import register_user_db
+    from ..database_interfacing import register_user_db
     
     # Prepare additional data based on role
     additional_data = {}

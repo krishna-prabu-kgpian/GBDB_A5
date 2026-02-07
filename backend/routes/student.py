@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, g
-from ..db import query_db, get_db
+from ..database_connection import query_db, get_db
 from .auth import auth_bp # If we need decorators later, or just use raw JWT check
 # For simplicity, we assume the frontend sends the token and we decode it or middleware handles it.
 # Ideally we'd have a @login_required decorator. For this lab, I'll extract user from token or pass user_id in headers for testing if simple.
@@ -28,7 +28,7 @@ def enroll():
         
     # Check if already enrolled
     # Use helper function for enrollment
-    from ..db import enroll_student_db
+    from ..database_interfacing import enroll_student_db
     success, message = enroll_student_db(student_id, course_id)
     
     if success:

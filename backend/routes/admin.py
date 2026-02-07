@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from ..db import query_db, get_db
+from ..database_connection import query_db, get_db
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -9,7 +9,7 @@ def assign_teacher():
     instructor_id = data.get('instructor_id')
     course_id = data.get('course_id')
     
-    from ..db import assign_instructor_db
+    from ..database_interfacing import assign_instructor_db
     success, message = assign_instructor_db(instructor_id, course_id)
     
     if success:
@@ -25,7 +25,7 @@ def get_users():
 
 @admin_bp.route('/user/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
-    from ..db import delete_user_db
+    from ..database_interfacing import delete_user_db
     success, message = delete_user_db(user_id)
     
     if success:
