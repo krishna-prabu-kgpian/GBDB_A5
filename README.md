@@ -24,6 +24,36 @@ sqlite3 cms_db.sqlite < database/seed.sql
 python -m backend.app
 ```
 *   Backend runs on: `http://127.0.0.1:5001`
+*   **Note:** By default, it looks for PostgreSQL. Verify `backend/config.py`.
+
+### 1b. Database Setup (PostgreSQL - Recommended)
+The application defaults to PostgreSQL.
+
+1.  **Install & Start PostgreSQL**
+    ```bash
+    brew install postgresql@14
+    brew services start postgresql@14
+    ```
+
+2.  **Create Database & Seed Data**
+    ```bash
+    createdb cms_db
+    psql -d cms_db -f database/schema_postgres.sql
+    psql -d cms_db -f database/seed_postgres.sql
+    ```
+
+3.  **Configuration**
+    Ensure `backend/config.py` has `DATABASE_TYPE = 'postgres'`.
+
+### 1c. Database Setup (SQLite - Alternative)
+If you prefer SQLite:
+1.  Edit `backend/config.py` and set `DATABASE_TYPE = 'sqlite'`.
+2.  Initialize the DB:
+    ```bash
+    sqlite3 cms_db.sqlite < database/schema.sql
+    sqlite3 cms_db.sqlite < database/seed.sql
+    ```
+
 
 ### 2. Frontend Setup (React)
 ```bash
