@@ -15,7 +15,8 @@ def login():
         return jsonify({'error': 'Username and password required'}), 400
 
     # In a real app, hash checking would happen here. For this assignment, plain text checking or simple comparison
-    user = query_db('SELECT User_ID as user_id, Username as username, Password as password, Role as role, Name as name FROM Users WHERE Username = ?', (username,), one=True)
+    from ..db import get_user_by_username_db
+    user = get_user_by_username_db(username)
     
     if user: 
         # CAUTION: In production, verify hashed password. 
@@ -60,37 +61,19 @@ def register():
     if not all([username, password, role, name, email]):
         return jsonify({'error': 'Missing required fields'}), 400
         
-    conn = get_db()
-    cur = conn.cursor() # conn is connection object now
+    from ..db import register_user_db
     
-    try:
-        # Insert into Users
-        # SQLite uses lastrowid instead of RETURNING usually, but newer sqlite supports RETURNING.
-        # To be safe and compatible:
-        cur.execute(
-            'INSERT INTO Users (Username, Password, Role, Name, Email) VALUES (?, ?, ?, ?, ?)',
-            (username, password, role, name, email)
-        )
-        user_id = cur.lastrowid
+    # Prepare additional data based on role
+    additional_data = {}
+    if role == 'Student':
+        additional_data['age'] = data.get('age')
+        additional_data['country'] = data.get('country')
+    elif role == 'Instructor':
+        additional_data['experience'] = data.get('experience', 0)
         
-        # Insert into Role specific table
-        if role == 'Student':
-            age = data.get('age')
-            country = data.get('country')
-            cur.execute('INSERT INTO Student (Student_ID, Age, Country) VALUES (?, ?, ?)', (user_id, age, country))
-        elif role == 'Instructor':
-            experience = data.get('experience', 0)
-            cur.execute('INSERT INTO Instructor (Instructor_ID, Experience) VALUES (?, ?)', (user_id, experience))
-        elif role == 'Administrator':
-            cur.execute('INSERT INTO Administrator (Admin_ID) VALUES (?)', (user_id,))
-        elif role == 'Data_Analyst':
-            cur.execute('INSERT INTO Data_Analyst (Analyst_ID) VALUES (?)', (user_id,))
-            
-        conn.commit()
-        return jsonify({'message': 'User registered successfully', 'user_id': user_id}), 201
-        
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'error': str(e)}), 400
-    finally:
-        cur.close()
+    success, result = register_user_db(username, password, role, name, email, additional_data)
+    
+    if success:
+        return jsonify({'message': 'User registered successfully', 'user_id': result}), 201
+    else:
+        return jsonify({'error': result}), 400

@@ -24,24 +24,10 @@ def add_content():
     if not all([course_id, content_url, content_type]):
         return jsonify({'error': 'Missing fields'}), 400
         
-    conn = get_db()
-    cur = conn.cursor()
-    try:
-        # Insert into Course_Content
-        # SQLite uses lastrowid
-        cur.execute('INSERT INTO Course_Content (URL, Type) VALUES (?, ?)',
-                    (content_url, content_type))
-        content_id = cur.lastrowid
-        
-        # Insert into Includes (as per ER diagram structure requirement)
-        cur.execute('INSERT INTO Includes (Course_ID, Content_ID) VALUES (?, ?)',
-                    (course_id, content_id))
-                    
-        conn.commit()
-        return jsonify({'message': 'Content added successfully'}), 201
-    except Exception as e:
-        conn.rollback()
-        print(e)
-        return jsonify({'error': str(e)}), 400
-    finally:
-        cur.close()
+    from ..db import add_course_content_db
+    success, message = add_course_content_db(course_id, content_url, content_type)
+    
+    if success:
+        return jsonify({'message': message}), 201
+    else:
+        return jsonify({'error': message}), 400

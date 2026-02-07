@@ -9,18 +9,13 @@ def assign_teacher():
     instructor_id = data.get('instructor_id')
     course_id = data.get('course_id')
     
-    conn = get_db()
-    cur = conn.cursor()
-    try:
-        cur.execute('INSERT INTO Teaches (Instructor_ID, Course_ID) VALUES (?, ?)',
-                    (instructor_id, course_id))
-        conn.commit()
-        return jsonify({'message': 'Instructor assigned'}), 201
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'error': str(e)}), 400
-    finally:
-        cur.close()
+    from ..db import assign_instructor_db
+    success, message = assign_instructor_db(instructor_id, course_id)
+    
+    if success:
+        return jsonify({'message': message}), 201
+    else:
+        return jsonify({'error': message}), 400
 
 @admin_bp.route('/users', methods=['GET'])
 def get_users():
@@ -30,18 +25,14 @@ def get_users():
 
 @admin_bp.route('/user/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
-    conn = get_db()
-    cur = conn.cursor()
-    try:
-        cur.execute('DELETE FROM Users WHERE User_ID = ?', (user_id,))
-        if cur.rowcount == 0:
-            return jsonify({'error': 'User not found'}), 404
-        conn.commit()
-        return jsonify({'message': 'User deleted successfully'}), 200
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'error': str(e)}), 400
-        cur.close()
+    from ..db import delete_user_db
+    success, message = delete_user_db(user_id)
+    
+    if success:
+        return jsonify({'message': message}), 200
+    else:
+        status_code = 404 if message == 'User not found' else 400
+        return jsonify({'error': message}), status_code
 
 @admin_bp.route('/instructors', methods=['GET'])
 def get_instructors():

@@ -27,23 +27,15 @@ def enroll():
         return jsonify({'error': 'Missing student_id or course_id'}), 400
         
     # Check if already enrolled
-    existing = query_db('SELECT * FROM Enrollment WHERE Student_ID = ? AND Course_ID = ?', 
-                        (student_id, course_id), one=True)
-    if existing:
-        return jsonify({'error': 'Already enrolled'}), 400
-        
-    conn = get_db()
-    cur = conn.cursor()
-    try:
-        cur.execute('INSERT INTO Enrollment (Student_ID, Course_ID, Score) VALUES (?, ?, NULL)', 
-                    (student_id, course_id))
-        conn.commit()
-        return jsonify({'message': 'Enrolled successfully'}), 201
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'error': str(e)}), 400
-    finally:
-        cur.close()
+    # Use helper function for enrollment
+    from ..db import enroll_student_db
+    success, message = enroll_student_db(student_id, course_id)
+    
+    if success:
+        return jsonify({'message': message}), 201
+    else:
+        status_code = 400 if message == 'Already enrolled' else 500
+        return jsonify({'error': message}), status_code
 
 @student_bp.route('/my-courses/<int:student_id>', methods=['GET'])
 def my_courses(student_id):
