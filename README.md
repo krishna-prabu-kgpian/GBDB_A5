@@ -784,3 +784,9 @@ These are used by *any* logged-in role.
 - `enrollments_by_university(actor:ActorContext, filters:{ from?:str, to?:str, top?:int, topicId?:int, programId?:int, courseId?:int }) -> list[{ universityId:int, universityName:str, enrollments:int }]`
 
 ---
+
+# Database Function Templates
+
+- `get_conn() -> Connection to database`
+- `close_conn(conn:Connection) -> None`
+  Add others here (Ketan and Shreeraj decide)
