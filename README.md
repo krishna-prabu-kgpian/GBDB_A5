@@ -8,7 +8,7 @@
 > **Roles (Naming Convention):** `ADMIN`, `STUDENT`, `INSTRUCTOR`, `ANALYST`  
 > **Response Convention:**  
 > - Success: `{ "data": … , "meta": ... }` (object or list depending on the endpoint)  
-> - Error: `{ "error": { "code": "<STRING>", "message": "<STRING>", "details": <Object optional> } }`  
+> - Error: `{ "error": "<string>" }`  
 > **HTTP Codes:**  
 > - `200` OK  
 > - `400` validation / malformed inputs  
