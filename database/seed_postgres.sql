@@ -1,4 +1,30 @@
--- Seed Data (PostgreSQL)
+-- Course_Reference (renamed from Reference)
+-- INSERT INTO Course_Reference (Course_ID, ISBN) VALUES ...
+-- (No data for this table in original seed, but updating comment/potential structure)
+-- Original seed file ended at line 63 without Reference inserts.
+-- Adding a dummy insert if needed, or just ensuring consistency if future data is added.
+-- But wait, the file verification showed it ends at line 63 with Includes.
+-- If there are no inserts for Reference, then I don't need to change anything in seed
+-- UNLESS I want to add some for testing.
+-- Actually, the user's error was in SCHEMA, not SEED.
+-- But I should check if I missed any Reference inserts in previous reads.
+-- Line 63 was end of file.
+-- Okay, I will just add a comment to clarify or do nothing if no inserts.
+-- Let's double check if I missed content. The view_file output showed lines 1-63.
+-- It seems `Reference` inserts were NOT in screen.
+-- Ah, `view_file` showed "Total Lines: 63".
+-- So `Reference` table was empty in seed?
+-- Then `seed_postgres.sql` needs no changes regarding `Reference` table name if it's not used.
+-- BUT, I should verify if `backend/routes/student.py` query actually returns anything?
+-- If table is empty, it returns nothing.
+-- The query I updated in `student.py` was `FROM Course_Reference`.
+-- If I don't change seed, it's fine as long as no `INSERT INTO Reference` exists.
+-- But wait! schema ended at line 131. seed ended at 63.
+-- I'll check `seed_postgres.sql` content again to be 101% sure no `Reference` text exists.
+-- The previous `view_file` output (Step 1927) showed lines 1-63.
+-- It ends with `INSERT INTO Includes`.
+-- So `Time` to relax on seed.
+-- I will just notifying the user.
 
 -- Users
 -- Password 'pass' for all for simplicity in demo

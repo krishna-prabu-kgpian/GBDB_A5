@@ -34,7 +34,7 @@ def migrate_database():
 
         # Drop tables - using lowercase names based on previous fixes
         tables = [
-            'reference', 'textbook', 'covers', 'topic', 'includes', 'course_content',
+            'course_reference', 'textbook', 'covers', 'topic', 'includes', 'course_content',
             'teaches', 'enrollment', 'part_of', 'program', 'offers', 'partner_university',
             'course', 'data_analyst', 'administrator', 'instructor', 'student', 'users'
         ]

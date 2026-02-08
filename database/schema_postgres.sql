@@ -122,8 +122,8 @@ CREATE TABLE Textbook (
     Author VARCHAR(100)
 );
 
--- Reference (Relationship between Course and Textbook)
-CREATE TABLE Reference (
+-- Course_Reference (Relationship between Course and Textbook)
+CREATE TABLE Course_Reference (
     Course_ID INTEGER REFERENCES Course(Course_ID) ON DELETE CASCADE,
     ISBN VARCHAR(20) REFERENCES Textbook(ISBN) ON DELETE CASCADE,
     PRIMARY KEY (Course_ID, ISBN)

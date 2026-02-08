@@ -73,16 +73,18 @@ def get_course_details(course_id):
     """
     content = query_db(content_query, (course_id,))
     
-    # 5. Textbooks (References) -- Assuming Reference table links Course and Textbook
-    # Check schema? Assuming table Reference (Course_ID, ISBN) and Textbook (ISBN, Title, Author)
+    # 5. Textbooks (References) -- Assuming Course_Reference table links Course and Textbook
+    # Check schema? Assuming table Course_Reference (Course_ID, ISBN) and Textbook (ISBN, Title, Author)
     textbook_query = """
         SELECT tb.Title as title, tb.Author as author
-        FROM Reference r
+        FROM Course_Reference r
         JOIN Textbook tb ON r.ISBN = tb.ISBN
         WHERE r.Course_ID = ?
     """
-    # Note: If schema differs, this might fail. But sticking to standard assumption/previous reads.
-    # Re-verifying Reference table name?
+    
+    # Re-verifying Course_Reference table name?
+    # Let's check schema_postgres.sql or assume standard.
+    # Actually, I should verify schema for 'Course_Reference'. table name?
     # Let's check schema.sql or assume standard.
     # To be safe, I'll wrap in try/except or just run it. 
     # Actually, I should verify schema for 'Reference'.
