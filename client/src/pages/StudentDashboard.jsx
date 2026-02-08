@@ -96,7 +96,6 @@ const StudentDashboard = () => {
                         <div key={c.course_id} className="course-card" onClick={() => navigate(`/courses/${c.course_id}`)}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                                 <h3>{c.name}</h3>
-                                {/* Fees hidden per user request */}
                             </div>
                             <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>Duration: {c.duration} weeks</p>
                             <button className="btn-primary full-width" style={{ marginTop: '10px' }}>View Details</button>

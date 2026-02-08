@@ -19,12 +19,10 @@ def get_db():
 
 def close_db(e=None):
     db = g.pop('db', None)
-
     if db is not None:
         db.close()
 
 def _prepare_query(query):
-    """Replaces ? with %s for Postgres"""
     return query.replace('?', '%s')
 
 def query_db(query, args=(), one=False):
@@ -42,35 +40,16 @@ def query_db(query, args=(), one=False):
     cur.close()
     
     def to_dict(row):
-            return dict(row) if row else None
+        return dict(row) if row else None
             
     if one:
         return to_dict(rv[0] if rv else None)
     return [to_dict(r) for r in rv] if rv else []
 
-def execute_insert(query, args=()):
-    """
-    Executes an INSERT.
-    For Postgres: Returns None unless RETURNING is used, but this function signature 
-    doesn't natively return ID without 'RETURNING'. 
-    If you need the ID, use execute_insert_returning_id.
-    """
-    db = get_db()
-    query = _prepare_query(query)
-    
-    cur = db.cursor()
-    cur.execute(query, args)
-    db.commit()
-    cur.close()
-    return None
-
 def execute_insert_returning_id(query, args=(), pk_name='id'):
-    """
-    Executes INSERT and returns the new ID using RETURNING.
-    """
     db = get_db()
-    
     query = _prepare_query(query)
+    
     if 'RETURNING' not in query.upper():
         query += f' RETURNING {pk_name}'
         

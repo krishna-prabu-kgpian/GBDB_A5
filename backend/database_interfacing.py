@@ -1,15 +1,8 @@
-from .database_connection import query_db, get_db, execute_insert, execute_insert_returning_id
-
-# Validations
-def check_user_exists(username):
-    user = query_db('SELECT User_ID FROM Users WHERE Username = ?', (username,), one=True)
-    return user is not None
+from .database_connection import query_db, execute_insert_returning_id
 
 def get_user_by_username_db(username):
     return query_db('SELECT User_ID as user_id, Username as username, Password as password, Role as role, Name as name FROM Users WHERE Username = ?', (username,), one=True)
 
-
-# Write Operations
 def enroll_student_db(student_id, course_id):
     existing = query_db('SELECT * FROM Enrollment WHERE Student_ID = ? AND Course_ID = ?', 
                         (student_id, course_id), one=True)
@@ -17,8 +10,6 @@ def enroll_student_db(student_id, course_id):
         return False, 'Already enrolled'
         
     try:
-        # Use simple execute/query for standard inserts without return ID
-        # We can use query_db here as it commits for non-SELECT
         query_db('INSERT INTO Enrollment (Student_ID, Course_ID, Score) VALUES (?, ?, NULL)', 
                  (student_id, course_id))
         return True, 'Enrolled successfully'
@@ -26,7 +17,6 @@ def enroll_student_db(student_id, course_id):
         return False, str(e)
 
 def assign_instructor_db(instructor_id, course_id):
-    # Check if already assigned
     existing = query_db('SELECT * FROM Teaches WHERE Instructor_ID = ? AND Course_ID = ?', 
                         (instructor_id, course_id), one=True)
     if existing:
@@ -41,17 +31,6 @@ def assign_instructor_db(instructor_id, course_id):
 
 def delete_user_db(user_id):
     try:
-        # query_db commits, but we need to check rowcount? 
-        # query_db doesn't return rowcount.
-        # We might need a custom execute for this if we strictly want rowcount check.
-        # But standard DELETE is idempotent-ish.
-        # Let's use get_db() manually if we really need rowcount, or relying on query_db is fine if we just assume success.
-        # To be precise, let's use execute_insert behavior or similar.
-        # Actually, let's just trace it. If it fails, it throws.
-        # If user doesn't exist, DELETE handles it silently (rowcount=0).
-        # We can optimize: Check exists first? Or just try delete.
-        
-        # For full compat, let's use simple logic:
         query_db('DELETE FROM Users WHERE User_ID = ?', (user_id,))
         return True, 'User deleted successfully'
     except Exception as e:
@@ -59,7 +38,6 @@ def delete_user_db(user_id):
 
 def add_course_content_db(course_id, url, content_type):
     try:
-        # Need Content_ID
         content_id = execute_insert_returning_id(
             'INSERT INTO Course_Content (URL, Type) VALUES (?, ?)', 
             (url, content_type),
@@ -67,7 +45,7 @@ def add_course_content_db(course_id, url, content_type):
         )
         
         if content_id is None:
-             return False, 'Failed to generate Content ID'
+            return False, 'Failed to generate Content ID'
 
         query_db('INSERT INTO Includes (Course_ID, Content_ID) VALUES (?, ?)', (course_id, content_id))
         return True, 'Content added successfully'
@@ -76,7 +54,6 @@ def add_course_content_db(course_id, url, content_type):
 
 def register_user_db(username, password, role, name, email, additional_data):
     try:
-        # Need User_ID
         user_id = execute_insert_returning_id(
             'INSERT INTO Users (Username, Password, Role, Name, Email) VALUES (?, ?, ?, ?, ?)',
             (username, password, role, name, email),

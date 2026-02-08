@@ -15,14 +15,10 @@ def login():
         return jsonify({'error': 'Username and password required'}), 400
 
     from werkzeug.security import check_password_hash
-    
-    # In a real app, hash checking would happen here. For this assignment, plain text checking or simple comparison
     from ..database_interfacing import get_user_by_username_db
     user = get_user_by_username_db(username)
     
-    if user: 
-        # Verify password hash
-        # CAUTION: Seed data must be updated to use hashes for this to work.
+    if user:
         if check_password_hash(user['password'], password):
              token = jwt.encode({
                  'user_id': user['user_id'],
@@ -41,7 +37,6 @@ def login():
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    # Register logic can be complex due to multiple tables (Student, Instructor, etc.)
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
@@ -55,10 +50,8 @@ def register():
     from ..database_interfacing import register_user_db
     from werkzeug.security import generate_password_hash
 
-    # Hash the password before storing
     hashed_password = generate_password_hash(password)
     
-    # Prepare additional data based on role
     additional_data = {}
     if role == 'Student':
         additional_data['age'] = data.get('age')

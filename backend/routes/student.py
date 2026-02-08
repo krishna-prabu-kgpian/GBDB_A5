@@ -1,11 +1,5 @@
-from flask import Blueprint, request, jsonify, g
-from ..database_connection import query_db, get_db
-from .auth import auth_bp # If we need decorators later, or just use raw JWT check
-# For simplicity, we assume the frontend sends the token and we decode it or middleware handles it.
-# Ideally we'd have a @login_required decorator. For this lab, I'll extract user from token or pass user_id in headers for testing if simple.
-# But since we implemented JWT in login, let's assume we parse it.
-# To keep strictly to "Functional Requirements" and "Minimal", I will add a simple helper or just trust the ID passed in the body (insecure but fast for lab) 
-# OR better: use the JWT.
+from flask import Blueprint, request, jsonify
+from ..database_connection import query_db
 
 student_bp = Blueprint('student', __name__)
 
@@ -19,14 +13,12 @@ def get_courses():
 @student_bp.route('/enroll', methods=['POST'])
 def enroll():
     data = request.get_json()
-    student_id = data.get('student_id') # In real app, get from Token
+    student_id = data.get('student_id')
     course_id = data.get('course_id')
     
     if not student_id or not course_id:
         return jsonify({'error': 'Missing student_id or course_id'}), 400
         
-    # Check if already enrolled
-    # Use helper function for enrollment
     from ..database_interfacing import enroll_student_db
     success, message = enroll_student_db(student_id, course_id)
     
@@ -40,14 +32,12 @@ def enroll():
 def get_course_details(course_id):
     # 1. Course Details
     course_query = "SELECT Course_ID as course_id, Name as name, Duration as duration, Fees as fees FROM Course WHERE Course_ID = ?"
+    course_query = "SELECT Course_ID as course_id, Name as name, Duration as duration, Fees as fees FROM Course WHERE Course_ID = ?"
     course = query_db(course_query, (course_id,), one=True)
     
     if not course:
         return jsonify({'error': 'Course not found'}), 404
-
-    # 2. Instructors
-    inst_query = """
-        SELECT u.Name as name, i.Experience as experience
+e as name, i.Experience as experience
         FROM Teaches t
         JOIN Instructor i ON t.Instructor_ID = i.Instructor_ID
         JOIN Users u ON i.Instructor_ID = u.User_ID
@@ -57,7 +47,6 @@ def get_course_details(course_id):
 
     # 3. Topics
     topic_query = """
-        SELECT t.Name as name
         FROM Covers c
         JOIN Topic t ON c.Topic_ID = t.Topic_ID
         WHERE c.Course_ID = ?
@@ -65,7 +54,6 @@ def get_course_details(course_id):
     topics = query_db(topic_query, (course_id,))
 
     # 4. Content
-    content_query = """
         SELECT cc.Type as type, cc.URL as url
         FROM Includes i
         JOIN Course_Content cc ON i.Content_ID = cc.Content_ID
@@ -82,19 +70,11 @@ def get_course_details(course_id):
         WHERE r.Course_ID = ?
     """
     
-    # Re-verifying Course_Reference table name?
-    # Let's check schema_postgres.sql or assume standard.
-    # Actually, I should verify schema for 'Course_Reference'. table name?
-    # Let's check schema.sql or assume standard.
-    # To be safe, I'll wrap in try/except or just run it. 
-    # Actually, I should verify schema for 'Reference'.
     textbooks = []
     try:
         textbooks = query_db(textbook_query, (course_id,))
     except:
-        pass # Table might be named differently or not exist yet if not seeded
-        
-    return jsonify({
+        pass
         'course': course,
         'instructors': instructors if instructors else [],
         'topics': topics if topics else [],

@@ -43,9 +43,6 @@ const CourseDetailPage = () => {
 
     const closeModal = () => {
         setModalInfo({ ...modalInfo, show: false });
-        if (modalInfo.title === 'Success') {
-            // Optional: redirect or refresh?
-        }
     };
 
     if (loading) return <div className="loading">Loading course details...</div>;
@@ -70,7 +67,6 @@ const CourseDetailPage = () => {
                 <h1>{course.name}</h1>
                 <div className="detail-meta">
                     <span className="badge">{course.duration} Weeks</span>
-                    {/* Fees hidden per user request */}
                 </div>
             </div>
 
