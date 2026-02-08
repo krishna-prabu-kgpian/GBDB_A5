@@ -5,8 +5,7 @@ class Config:
     DATABASE_TYPE = 'postgres'
     
     # Postgres
-    # Default to hosted Neon DB for demo purposes
-    DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://neondb_owner:npg_sy7VDzfHM2Ew@ep-wispy-night-ai945e4f-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require')
+    DATABASE_URL = os.getenv('DATABASE_URL')
     DB_NAME = os.getenv('DB_NAME', 'cms_db')
     DB_USER = os.getenv('DB_USER', 'shreerajkalbande') # Current user
     DB_PASSWORD = os.getenv('DB_PASSWORD', '') # Empty for local trust/ident
