@@ -3,79 +3,53 @@
 ## 🚀 Quick Start Guide
 
 ### 1. Backend Setup (Flask)
-```bash
-# Navigate to root
+#### Windows
+```powershell
 cd FINAL_PRJDBMS
-
-# Set up virtual environment
-python3 -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-
-# Install dependencies
+python -m venv .venv
+.venv\Scripts\activate
 pip install -r backend/requirements.txt
-
-# Initialize Database (PostgreSQL)
-# Ensure Postgres service is running
+# (Ensure Postgres is running)
 createdb cms_db
 psql -d cms_db -f database/schema_postgres.sql
 psql -d cms_db -f database/seed_postgres.sql
-
-# Run Server
 python -m backend.app
 ```
-*   Backend runs on: `http://127.0.0.1:5001`
 
-### 1b. Database Setup (PostgreSQL)
-1.  **Install & Start PostgreSQL**
-    ```bash
-    brew install postgresql@14
-    brew services start postgresql@14
-    ```
-
-2.  **Create Database & Seed Data**
-    ```bash
-    createdb cms_db
-    psql -d cms_db -f database/schema_postgres.sql
-    psql -d cms_db -f database/seed_postgres.sql
-    ```
-
-4.  **Reset Database (Optional)**
-    To wipe the database and restore seed data:
-    ```bash
-    python reset_db.py
-    ```
-
-5.  **Deploy to Cloud (`migrate_db.py`)**
-    To push your local schema and data to a remote Postgres database (e.g., Neon, Supabase):
-    ```bash
-    # 1. Get your connection string from the cloud provider
-    # 2. Run the migration script
-    python migrate_db.py
-    # 3. Paste the connection string when prompted
-    ```
-
-### 3. Key Features
-- **Premium UI**: Modern card-based layouts for Students and Instructors.
-- **Role-Based Dashboards**: tailored views for Students, Instructors, Admins, and Analysts.
-- **Secure Authentication**: JWT-based login with role protection.
-- **PostgreSQL**: Robust database backend.
-
-
+#### Mac / Linux
+```bash
+cd FINAL_PRJDBMS
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r backend/requirements.txt
+# (Ensure Postgres service is running: sudo service postgresql start)
+createdb cms_db
+psql -d cms_db -f database/schema_postgres.sql
+psql -d cms_db -f database/seed_postgres.sql
+python3 -m backend.app
+```
 
 ### 2. Frontend Setup (React)
+#### Windows / Mac / Linux
 ```bash
-# Open a new terminal
 cd client
-
-# Install dependencies
 npm install
-
-# Run Frontend
 npm run dev
 ```
-*   Frontend runs on: `http://localhost:5173`
 
-### 3. Default Credentials
+### 3. Database Management
+#### Reset Local Database
+```bash
+python reset_db.py
+```
+
+#### Deploy to Cloud (Neon/Supabase)
+```bash
+python migrate_db.py
+# Paste connection string when prompted
+```
+
+### 5. Default Credentials
 *   **Admin**: `admin` / `pass`
 *   **Instructor**: `inst1` / `pass`
 *   **Student**: `stud1` / `pass`
