@@ -14,25 +14,16 @@ def login():
     if not username or not password:
         return jsonify({'error': 'Username and password required'}), 400
 
+    from werkzeug.security import check_password_hash
+    
     # In a real app, hash checking would happen here. For this assignment, plain text checking or simple comparison
     from ..database_interfacing import get_user_by_username_db
     user = get_user_by_username_db(username)
     
     if user: 
-        # CAUTION: In production, verify hashed password. 
-        # Assignment asks for password but usually simple is okay if not specified.
-        # But schema said "Should store hashed passwords". 
-        # We will assume simple match for "demo" seed data, or implement hash check if needed.
-        # Seed data uses 'pass' or 'scrypt...'.
-        # For simplicity in this lab, I will implement direct comparison effectively assuming 
-        # the user might have registered with plain text, OR handle the seed specially.
-        # Let's just check equality for now to be safe with the seed data 'pass'.
-        
-        # NOTE: If we want to be secure, use werkzeug.security.check_password_hash
-        # But the seed data 'scrypt...' implies hashing. 
-        # 'stud1' has 'pass'.
-        
-        if user['password'] == password: # Simplistic
+        # Verify password hash
+        # CAUTION: Seed data must be updated to use hashes for this to work.
+        if check_password_hash(user['password'], password):
              token = jwt.encode({
                  'user_id': user['user_id'],
                  'role': user['role'],
@@ -62,6 +53,10 @@ def register():
         return jsonify({'error': 'Missing required fields'}), 400
         
     from ..database_interfacing import register_user_db
+    from werkzeug.security import generate_password_hash
+
+    # Hash the password before storing
+    hashed_password = generate_password_hash(password)
     
     # Prepare additional data based on role
     additional_data = {}
@@ -71,7 +66,7 @@ def register():
     elif role == 'Instructor':
         additional_data['experience'] = data.get('experience', 0)
         
-    success, result = register_user_db(username, password, role, name, email, additional_data)
+    success, result = register_user_db(username, hashed_password, role, name, email, additional_data)
     
     if success:
         return jsonify({'message': 'User registered successfully', 'user_id': result}), 201

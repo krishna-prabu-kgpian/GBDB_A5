@@ -5,6 +5,7 @@ class Config:
     DATABASE_TYPE = 'postgres'
     
     # Postgres
+    DATABASE_URL = os.getenv('DATABASE_URL')
     DB_NAME = os.getenv('DB_NAME', 'cms_db')
     DB_USER = os.getenv('DB_USER', 'shreerajkalbande') # Current user
     DB_PASSWORD = os.getenv('DB_PASSWORD', '') # Empty for local trust/ident

@@ -45,6 +45,15 @@ python -m backend.app
     python reset_db.py
     ```
 
+5.  **Deploy to Cloud (`migrate_db.py`)**
+    To push your local schema and data to a remote Postgres database (e.g., Neon, Supabase):
+    ```bash
+    # 1. Get your connection string from the cloud provider
+    # 2. Run the migration script
+    python migrate_db.py
+    # 3. Paste the connection string when prompted
+    ```
+
 ### 3. Key Features
 - **Premium UI**: Modern card-based layouts for Students and Instructors.
 - **Role-Based Dashboards**: tailored views for Students, Instructors, Admins, and Analysts.

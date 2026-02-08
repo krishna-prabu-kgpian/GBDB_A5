@@ -3,13 +3,13 @@
 -- Users
 -- Password 'pass' for all for simplicity in demo
 INSERT INTO Users (Username, Password, Role, Name, Email) VALUES
-('admin', 'pass', 'Administrator', 'Admin User', 'admin@cms.com'),
-('inst1', 'pass', 'Instructor', 'Dr. Smith', 'smith@cms.com'),
-('inst2', 'pass', 'Instructor', 'Prof. Johnson', 'johnson@cms.com'),
-('stud1', 'pass', 'Student', 'Alice', 'alice@cms.com'),
-('stud2', 'pass', 'Student', 'Bob', 'bob@cms.com'),
-('stud3', 'pass', 'Student', 'Charlie', 'charlie@cms.com'),
-('analyst1', 'pass', 'Data_Analyst', 'John Doe', 'analyst@cms.com');
+('admin', 'scrypt:32768:8:1$6ub8B8OgfJfMfV3O$658eb953c0936554b56f1b90ca65e7e8a3bb81d6a615cc428b7d47f5a7f4cec409f3ab85dfa65307df389086257cb57cb494d235386d7b3413f42a3d4d780ecc', 'Administrator', 'Admin User', 'admin@cms.com'),
+('inst1', 'scrypt:32768:8:1$6ub8B8OgfJfMfV3O$658eb953c0936554b56f1b90ca65e7e8a3bb81d6a615cc428b7d47f5a7f4cec409f3ab85dfa65307df389086257cb57cb494d235386d7b3413f42a3d4d780ecc', 'Instructor', 'Dr. Smith', 'smith@cms.com'),
+('inst2', 'scrypt:32768:8:1$6ub8B8OgfJfMfV3O$658eb953c0936554b56f1b90ca65e7e8a3bb81d6a615cc428b7d47f5a7f4cec409f3ab85dfa65307df389086257cb57cb494d235386d7b3413f42a3d4d780ecc', 'Instructor', 'Prof. Johnson', 'johnson@cms.com'),
+('stud1', 'scrypt:32768:8:1$6ub8B8OgfJfMfV3O$658eb953c0936554b56f1b90ca65e7e8a3bb81d6a615cc428b7d47f5a7f4cec409f3ab85dfa65307df389086257cb57cb494d235386d7b3413f42a3d4d780ecc', 'Student', 'Alice', 'alice@cms.com'),
+('stud2', 'scrypt:32768:8:1$6ub8B8OgfJfMfV3O$658eb953c0936554b56f1b90ca65e7e8a3bb81d6a615cc428b7d47f5a7f4cec409f3ab85dfa65307df389086257cb57cb494d235386d7b3413f42a3d4d780ecc', 'Student', 'Bob', 'bob@cms.com'),
+('stud3', 'scrypt:32768:8:1$6ub8B8OgfJfMfV3O$658eb953c0936554b56f1b90ca65e7e8a3bb81d6a615cc428b7d47f5a7f4cec409f3ab85dfa65307df389086257cb57cb494d235386d7b3413f42a3d4d780ecc', 'Student', 'Charlie', 'charlie@cms.com'),
+('analyst1', 'scrypt:32768:8:1$6ub8B8OgfJfMfV3O$658eb953c0936554b56f1b90ca65e7e8a3bb81d6a615cc428b7d47f5a7f4cec409f3ab85dfa65307df389086257cb57cb494d235386d7b3413f42a3d4d780ecc', 'Data_Analyst', 'John Doe', 'analyst@cms.com');
 
 -- Role specific tables
 INSERT INTO Administrator (Admin_ID) VALUES ((SELECT User_ID FROM Users WHERE Username='admin'));

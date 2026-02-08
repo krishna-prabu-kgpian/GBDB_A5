@@ -70,7 +70,7 @@ const CourseDetailPage = () => {
                 <h1>{course.name}</h1>
                 <div className="detail-meta">
                     <span className="badge">{course.duration} Weeks</span>
-                    <span className="badge price">${course.fees}</span>
+                    {/* Fees hidden per user request */}
                 </div>
             </div>
 
