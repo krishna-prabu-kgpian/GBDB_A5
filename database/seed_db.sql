@@ -4,31 +4,32 @@
 
 -- ============================================
 -- USERS (12 users total)
+-- All users have password: "pass"
 -- ============================================
 
 -- Students (5 users)
 INSERT INTO Users (User_ID, Username, Password, Role, Name, Email) VALUES
-('STU001', 'john.doe', 'hashed_pwd_1', 'Student', 'John Doe', 'john.doe@email.com'),
-('STU002', 'emma.wilson', 'hashed_pwd_2', 'Student', 'Emma Wilson', 'emma.wilson@email.com'),
-('STU003', 'raj.patel', 'hashed_pwd_3', 'Student', 'Raj Patel', 'raj.patel@email.com'),
-('STU004', 'maria.garcia', 'hashed_pwd_4', 'Student', 'Maria Garcia', 'maria.garcia@email.com'),
-('STU005', 'chen.wang', 'hashed_pwd_5', 'Student', 'Chen Wang', 'chen.wang@email.com');
+('STU001', 'john.doe', 'scrypt:32768:8:1$hXyKmCTEEaGYpIWa$633919f2cbc81d5d9f49d74d4db9166e72e832a541d22c4a77d525203d97c324298a345cec30016aaa3155a05ba68b45a4a1e6bbeba162f78979e28c130be607', 'Student', 'John Doe', 'john.doe@email.com'),
+('STU002', 'emma.wilson', 'scrypt:32768:8:1$hXyKmCTEEaGYpIWa$633919f2cbc81d5d9f49d74d4db9166e72e832a541d22c4a77d525203d97c324298a345cec30016aaa3155a05ba68b45a4a1e6bbeba162f78979e28c130be607', 'Student', 'Emma Wilson', 'emma.wilson@email.com'),
+('STU003', 'raj.patel', 'scrypt:32768:8:1$hXyKmCTEEaGYpIWa$633919f2cbc81d5d9f49d74d4db9166e72e832a541d22c4a77d525203d97c324298a345cec30016aaa3155a05ba68b45a4a1e6bbeba162f78979e28c130be607', 'Student', 'Raj Patel', 'raj.patel@email.com'),
+('STU004', 'maria.garcia', 'scrypt:32768:8:1$hXyKmCTEEaGYpIWa$633919f2cbc81d5d9f49d74d4db9166e72e832a541d22c4a77d525203d97c324298a345cec30016aaa3155a05ba68b45a4a1e6bbeba162f78979e28c130be607', 'Student', 'Maria Garcia', 'maria.garcia@email.com'),
+('STU005', 'chen.wang', 'scrypt:32768:8:1$hXyKmCTEEaGYpIWa$633919f2cbc81d5d9f49d74d4db9166e72e832a541d22c4a77d525203d97c324298a345cec30016aaa3155a05ba68b45a4a1e6bbeba162f78979e28c130be607', 'Student', 'Chen Wang', 'chen.wang@email.com');
 
 -- Instructors (3 users)
 INSERT INTO Users (User_ID, Username, Password, Role, Name, Email) VALUES
-('INS001', 'dr.smith', 'hashed_pwd_6', 'Instructor', 'Dr. Robert Smith', 'robert.smith@university.edu'),
-('INS002', 'prof.jones', 'hashed_pwd_7', 'Instructor', 'Prof. Jennifer Jones', 'jennifer.jones@university.edu'),
-('INS003', 'dr.kumar', 'hashed_pwd_8', 'Instructor', 'Dr. Arun Kumar', 'arun.kumar@university.edu');
+('INS001', 'dr.smith', 'scrypt:32768:8:1$hXyKmCTEEaGYpIWa$633919f2cbc81d5d9f49d74d4db9166e72e832a541d22c4a77d525203d97c324298a345cec30016aaa3155a05ba68b45a4a1e6bbeba162f78979e28c130be607', 'Instructor', 'Dr. Robert Smith', 'robert.smith@university.edu'),
+('INS002', 'prof.jones', 'scrypt:32768:8:1$hXyKmCTEEaGYpIWa$633919f2cbc81d5d9f49d74d4db9166e72e832a541d22c4a77d525203d97c324298a345cec30016aaa3155a05ba68b45a4a1e6bbeba162f78979e28c130be607', 'Instructor', 'Prof. Jennifer Jones', 'jennifer.jones@university.edu'),
+('INS003', 'dr.kumar', 'scrypt:32768:8:1$hXyKmCTEEaGYpIWa$633919f2cbc81d5d9f49d74d4db9166e72e832a541d22c4a77d525203d97c324298a345cec30016aaa3155a05ba68b45a4a1e6bbeba162f78979e28c130be607', 'Instructor', 'Dr. Arun Kumar', 'arun.kumar@university.edu');
 
 -- Data Analysts (2 users)
 INSERT INTO Users (User_ID, Username, Password, Role, Name, Email) VALUES
-('ANA001', 'analyst.james', 'hashed_pwd_9', 'Data_Analyst', 'James Mitchell', 'james.mitchell@platform.com'),
-('ANA002', 'analyst.sarah', 'hashed_pwd_10', 'Data_Analyst', 'Sarah Thompson', 'sarah.thompson@platform.com');
+('ANA001', 'analyst.james', 'scrypt:32768:8:1$hXyKmCTEEaGYpIWa$633919f2cbc81d5d9f49d74d4db9166e72e832a541d22c4a77d525203d97c324298a345cec30016aaa3155a05ba68b45a4a1e6bbeba162f78979e28c130be607', 'Data_Analyst', 'James Mitchell', 'james.mitchell@platform.com'),
+('ANA002', 'analyst.sarah', 'scrypt:32768:8:1$hXyKmCTEEaGYpIWa$633919f2cbc81d5d9f49d74d4db9166e72e832a541d22c4a77d525203d97c324298a345cec30016aaa3155a05ba68b45a4a1e6bbeba162f78979e28c130be607', 'Data_Analyst', 'Sarah Thompson', 'sarah.thompson@platform.com');
 
 -- Administrators (2 users)
 INSERT INTO Users (User_ID, Username, Password, Role, Name, Email) VALUES
-('ADM001', 'admin.chief', 'hashed_pwd_11', 'Administrator', 'Katherine Peterson', 'katherine.peterson@platform.com'),
-('ADM002', 'admin.tech', 'hashed_pwd_12', 'Administrator', 'Thomas Wright', 'thomas.wright@platform.com');
+('ADM001', 'admin.chief', 'scrypt:32768:8:1$hXyKmCTEEaGYpIWa$633919f2cbc81d5d9f49d74d4db9166e72e832a541d22c4a77d525203d97c324298a345cec30016aaa3155a05ba68b45a4a1e6bbeba162f78979e28c130be607', 'Administrator', 'Katherine Peterson', 'katherine.peterson@platform.com'),
+('ADM002', 'admin.tech', 'scrypt:32768:8:1$hXyKmCTEEaGYpIWa$633919f2cbc81d5d9f49d74d4db9166e72e832a541d22c4a77d525203d97c324298a345cec30016aaa3155a05ba68b45a4a1e6bbeba162f78979e28c130be607', 'Administrator', 'Thomas Wright', 'thomas.wright@platform.com');
 
 -- ============================================
 -- STUDENT DETAILS
