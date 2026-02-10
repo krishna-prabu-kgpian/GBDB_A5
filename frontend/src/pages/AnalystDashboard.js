@@ -65,6 +65,7 @@ function AnalystDashboard() {
           Analytics Dashboard
         </div>
         <div className="navbar-nav">
+          <span className="nav-link" style={{ cursor: 'default' }}>Welcome, {user?.name}</span>
           <button onClick={handleLogout} className="btn btn-sm btn-danger">
             <LogOut size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
             Logout

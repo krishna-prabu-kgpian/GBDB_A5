@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { instructorAPI } from '../services/api';
 import { BookOpen, Globe, PlusCircle, LogOut } from 'lucide-react';
 
@@ -69,6 +70,9 @@ function InstructorNavbar() {
         Educational Platform
       </Link>
       <div className="navbar-nav">
+        <Link to="/instructor/my-courses" className="nav-link">My Courses</Link>
+        <Link to="/instructor/all-courses" className="nav-link">All Courses</Link>
+        <Link to="/instructor/create-course" className="nav-link">Create Course</Link>
         <button onClick={handleLogout} className="btn btn-sm btn-danger">
           <LogOut size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
           Logout
@@ -189,6 +193,9 @@ function AllCourses() {
             <div className="card-body">
               <p><strong>Duration:</strong> {course.duration} weeks</p>
               <p><strong>Fees:</strong> ${course.fees}</p>
+              {course.description && (
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>{course.description.length > 100 ? course.description.substring(0, 100) + '...' : course.description}</p>
+              )}
             </div>
           </div>
         ))}
@@ -202,12 +209,13 @@ function CreateCourse() {
     name: '',
     duration: '',
     fees: '',
+    description: '',
   });
   const [collaborators, setCollaborators] = useState([]);
   const [selectedCollaborators, setSelectedCollaborators] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   useEffect(() => {
     fetchInstructors();
@@ -240,21 +248,21 @@ function CreateCourse() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
 
     try {
       const dataToSend = {
         name: formData.name,
         duration: parseInt(formData.duration),
         fees: parseInt(formData.fees),
+        description: formData.description,
         collaborators: selectedCollaborators,
       };
 
       await instructorAPI.createCourse(dataToSend);
-      setMessage('Course created successfully!');
+      showToast('Course created successfully!', 'success');
       setTimeout(() => navigate('/instructor'), 2000);
     } catch (err) {
-      setMessage(err.response?.data?.error || 'Error creating course');
+      showToast(err.response?.data?.error || 'Error creating course', 'error');
     } finally {
       setLoading(false);
     }
@@ -263,12 +271,6 @@ function CreateCourse() {
   return (
     <div className="paper-container">
       <h1>Create New Course</h1>
-
-      {message && (
-        <div className={`alert ${message.includes('Error') ? 'alert-error' : 'alert-success'}`}>
-          {message}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -322,6 +324,24 @@ function CreateCourse() {
         </div>
 
         <div className="form-group">
+          <label htmlFor="description" className="form-label">
+            Description (optional, max 500 chars)
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            className="form-control"
+            value={formData.description}
+            onChange={handleChange}
+            maxLength="500"
+            rows="3"
+            placeholder="Enter course description"
+            style={{ resize: 'vertical' }}
+          />
+          <small style={{ color: 'var(--text-secondary)' }}>{formData.description.length}/500</small>
+        </div>
+
+        <div className="form-group">
           <label className="form-label">
             Collaborating Instructors (Optional)
           </label>
@@ -369,11 +389,11 @@ function CourseManagement() {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
-  const [message, setMessage] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     duration: '',
     fees: '',
+    description: '',
   });
   const [contentForm, setContentForm] = useState({
     url: '',
@@ -381,9 +401,15 @@ function CourseManagement() {
   });
   const [showContentForm, setShowContentForm] = useState(false);
   const [showStudents, setShowStudents] = useState(false);
+  const [editingScore, setEditingScore] = useState(null);
+  const [scoreValue, setScoreValue] = useState('');
+  const [programData, setProgramData] = useState({ course_programs: [], all_programs: [] });
+  const [showProgramSection, setShowProgramSection] = useState(false);
   const navigate = useNavigate();
   const courseId = window.location.pathname.split('/').pop();
+  const { showToast } = useToast();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchCourseDetails();
   }, [courseId]);
@@ -396,11 +422,12 @@ function CourseManagement() {
         name: response.data.name,
         duration: response.data.duration,
         fees: response.data.fees,
+        description: response.data.description || '',
       });
     } catch (err) {
       console.error('Error loading course:', err);
       if (err.response?.status === 403) {
-        setMessage('You do not have permission to manage this course');
+        showToast('You do not have permission to manage this course', 'error');
       }
     } finally {
       setLoading(false);
@@ -424,19 +451,19 @@ function CourseManagement() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
 
     try {
       await instructorAPI.updateCourse(courseId, {
         name: formData.name,
         duration: parseInt(formData.duration),
         fees: parseInt(formData.fees),
+        description: formData.description,
       });
-      setMessage('Course updated successfully!');
+      showToast('Course updated successfully!', 'success');
       setEditMode(false);
       fetchCourseDetails();
     } catch (err) {
-      setMessage(err.response?.data?.error || 'Error updating course');
+      showToast(err.response?.data?.error || 'Error updating course', 'error');
     } finally {
       setLoading(false);
     }
@@ -445,18 +472,70 @@ function CourseManagement() {
   const handleAddContent = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
 
     try {
       await instructorAPI.addContent(courseId, contentForm);
-      setMessage('Content added successfully!');
+      showToast('Content added successfully!', 'success');
       setContentForm({ url: '', type: 'Video' });
       setShowContentForm(false);
       fetchCourseDetails();
     } catch (err) {
-      setMessage(err.response?.data?.error || 'Error adding content');
+      showToast(err.response?.data?.error || 'Error adding content', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateScore = async (studentId) => {
+    try {
+      await instructorAPI.updateScore(courseId, studentId, parseInt(scoreValue));
+      showToast('Score updated successfully!', 'success');
+      setEditingScore(null);
+      setScoreValue('');
+      fetchCourseDetails();
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Error updating score', 'error');
+    }
+  };
+
+  const handleDeleteCourse = async () => {
+    if (!window.confirm(`Are you sure you want to delete "${course.name}"? This action cannot be undone.`)) return;
+    try {
+      await instructorAPI.deleteCourse(courseId);
+      showToast('Course deleted successfully', 'success');
+      setTimeout(() => navigate('/instructor/my-courses'), 1500);
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Error deleting course', 'error');
+    }
+  };
+
+  const fetchProgramData = async () => {
+    try {
+      const response = await instructorAPI.getCoursePrograms(courseId);
+      setProgramData(response.data);
+      setShowProgramSection(true);
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Error loading programs', 'error');
+    }
+  };
+
+  const handleAddToProgram = async (programId) => {
+    try {
+      await instructorAPI.addCourseToProgram(courseId, programId);
+      showToast('Course added to program!', 'success');
+      fetchProgramData();
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Error adding course to program', 'error');
+    }
+  };
+
+  const handleRemoveFromProgram = async (programId) => {
+    try {
+      await instructorAPI.removeCourseFromProgram(courseId, programId);
+      showToast('Course removed from program', 'success');
+      fetchProgramData();
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Error removing course from program', 'error');
     }
   };
 
@@ -485,12 +564,6 @@ function CourseManagement() {
       <button onClick={() => navigate('/instructor')} className="btn btn-sm mb-3">
         ← Back to My Courses
       </button>
-
-      {message && (
-        <div className={`alert ${message.includes('Error') ? 'alert-error' : 'alert-success'}`}>
-          {message}
-        </div>
-      )}
 
       <div className="grid-2 mb-4">
         {/* Course Information - Compact */}
@@ -538,6 +611,20 @@ function CourseManagement() {
                   />
                 </div>
               </div>
+              <div className="form-group">
+                <label htmlFor="description" className="form-label">Description</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  className="form-control"
+                  value={formData.description}
+                  onChange={handleChange}
+                  maxLength="500"
+                  rows="3"
+                  style={{ resize: 'vertical' }}
+                />
+                <small style={{ color: 'var(--text-secondary)' }}>{formData.description.length}/500</small>
+              </div>
               <div className="flex gap-2">
                 <button type="submit" className="btn btn-primary btn-sm" disabled={loading}>Save</button>
                 <button type="button" onClick={() => setEditMode(false)} className="btn btn-sm">Cancel</button>
@@ -546,6 +633,9 @@ function CourseManagement() {
           ) : (
             <div>
               <p><strong>Duration:</strong> {course.duration} weeks | <strong>Fees:</strong> ${course.fees}</p>
+              {course.description && (
+                <p style={{ color: 'var(--text-secondary)', marginTop: '8px', fontStyle: 'italic' }}>{course.description}</p>
+              )}
               <p><strong>Enrolled Students:</strong> {course.students?.length || 0}</p>
               {course.instructors && course.instructors.length > 0 && (
                 <p><strong>Co-Instructors:</strong> {course.instructors.map(i => i.name).join(', ')}</p>
@@ -555,6 +645,10 @@ function CourseManagement() {
                 <button onClick={() => setShowStudents(!showStudents)} className="btn btn-sm">
                   {showStudents ? 'Hide' : 'Show'} Students
                 </button>
+                <button onClick={fetchProgramData} className="btn btn-sm">
+                  {showProgramSection ? 'Refresh' : 'Manage'} Programs
+                </button>
+                <button onClick={handleDeleteCourse} className="btn btn-sm btn-danger">Delete Course</button>
               </div>
             </div>
           )}
@@ -656,6 +750,7 @@ function CourseManagement() {
                     <th>Skill Level</th>
                     <th>Score</th>
                     <th>Enrolled</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -664,13 +759,82 @@ function CourseManagement() {
                       <td>{student.name}</td>
                       <td>{student.country}</td>
                       <td><span className="badge">{student.skill_level}</span></td>
-                      <td>{student.score !== null ? student.score : 'In Progress'}</td>
+                      <td>
+                        {editingScore === student.user_id ? (
+                          <div className="flex gap-1">
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={scoreValue}
+                              onChange={(e) => setScoreValue(e.target.value)}
+                              className="form-control"
+                              style={{ width: '80px', padding: '4px 8px' }}
+                            />
+                            <button onClick={() => handleUpdateScore(student.user_id)} className="btn btn-sm btn-primary">Save</button>
+                            <button onClick={() => { setEditingScore(null); setScoreValue(''); }} className="btn btn-sm">✕</button>
+                          </div>
+                        ) : (
+                          student.score !== null ? student.score : 'In Progress'
+                        )}
+                      </td>
                       <td>{new Date(student.enrollment_date).toLocaleDateString()}</td>
+                      <td>
+                        <button
+                          onClick={() => { setEditingScore(student.user_id); setScoreValue(student.score !== null ? student.score : ''); }}
+                          className="btn btn-sm"
+                        >
+                          Edit Score
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Program Management - Collapsible */}
+      {showProgramSection && (
+        <div className="card mt-4">
+          <div className="card-header flex-between">
+            <h3 className="card-title">Programs</h3>
+            <button onClick={() => setShowProgramSection(false)} className="btn btn-sm">Hide</button>
+          </div>
+          <div className="card-body">
+            {/* Current programs */}
+            {programData.course_programs.length > 0 ? (
+              <div className="mb-3">
+                <strong>Currently in:</strong>
+                {programData.course_programs.map((prog) => (
+                  <div key={prog.program_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--border-glass)' }}>
+                    <span>{prog.name} ({prog.prog_type}, {prog.duration} months)</span>
+                    <button onClick={() => handleRemoveFromProgram(prog.program_id)} className="btn btn-sm btn-danger">Remove</button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '12px' }}>This course is not part of any program yet.</p>
+            )}
+
+            {/* Available programs to add */}
+            {programData.all_programs.filter(p => !programData.course_programs.some(cp => cp.program_id === p.program_id)).length > 0 && (
+              <div style={{ padding: '12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', borderRadius: '8px' }}>
+                <strong>Add to program:</strong>
+                <div style={{ maxHeight: '200px', overflowY: 'auto', marginTop: '8px' }}>
+                  {programData.all_programs
+                    .filter(p => !programData.course_programs.some(cp => cp.program_id === p.program_id))
+                    .map((prog) => (
+                      <div key={prog.program_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0' }}>
+                        <span>{prog.name} ({prog.prog_type}, {prog.duration} months)</span>
+                        <button onClick={() => handleAddToProgram(prog.program_id)} className="btn btn-sm btn-primary">Add</button>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

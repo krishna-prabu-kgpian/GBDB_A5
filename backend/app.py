@@ -50,34 +50,34 @@ def register():
         # Generate user ID based on role
         if role == 'Student':
             # Get max student ID
-            max_id_query = "SELECT User_ID FROM Student ORDER BY User_ID DESC LIMIT 1"
+            max_id_query = "SELECT Student_ID FROM Student ORDER BY Student_ID DESC LIMIT 1"
             max_id = execute_single(max_id_query)
-            if max_id and max_id['user_id']:
-                num = int(max_id['user_id'][3:]) + 1
+            if max_id and max_id['student_id']:
+                num = int(max_id['student_id'][3:]) + 1
             else:
                 num = 1
             user_id = f"STU{num:03d}"
         elif role == 'Instructor':
-            max_id_query = "SELECT User_ID FROM Instructor ORDER BY User_ID DESC LIMIT 1"
+            max_id_query = "SELECT Instructor_ID FROM Instructor ORDER BY Instructor_ID DESC LIMIT 1"
             max_id = execute_single(max_id_query)
-            if max_id and max_id['user_id']:
-                num = int(max_id['user_id'][3:]) + 1
+            if max_id and max_id['instructor_id']:
+                num = int(max_id['instructor_id'][3:]) + 1
             else:
                 num = 1
             user_id = f"INS{num:03d}"
         elif role == 'Data_Analyst':
-            max_id_query = "SELECT User_ID FROM Data_Analyst ORDER BY User_ID DESC LIMIT 1"
+            max_id_query = "SELECT Analyst_ID FROM Data_Analyst ORDER BY Analyst_ID DESC LIMIT 1"
             max_id = execute_single(max_id_query)
-            if max_id and max_id['user_id']:
-                num = int(max_id['user_id'][3:]) + 1
+            if max_id and max_id['analyst_id']:
+                num = int(max_id['analyst_id'][3:]) + 1
             else:
                 num = 1
             user_id = f"ANA{num:03d}"
         elif role == 'Administrator':
-            max_id_query = "SELECT User_ID FROM Administrator ORDER BY User_ID DESC LIMIT 1"
+            max_id_query = "SELECT Admin_ID FROM Administrator ORDER BY Admin_ID DESC LIMIT 1"
             max_id = execute_single(max_id_query)
-            if max_id and max_id['user_id']:
-                num = int(max_id['user_id'][3:]) + 1
+            if max_id and max_id['admin_id']:
+                num = int(max_id['admin_id'][3:]) + 1
             else:
                 num = 1
             user_id = f"ADM{num:03d}"
@@ -164,16 +164,30 @@ def login():
 @token_required
 @role_required(['Student'])
 def get_all_courses_student():
-    """Get all courses for students"""
+    """Get all courses for students with optional search"""
     try:
-        query = """
-            SELECT c.*, 
-                   CASE WHEN e.Student_ID IS NOT NULL THEN true ELSE false END as is_enrolled
-            FROM Course c
-            LEFT JOIN Enrollment e ON c.Course_ID = e.Course_ID AND e.Student_ID = %s
-            ORDER BY c.Name
-        """
-        courses = execute_query(query, (request.user_id,))
+        search = request.args.get('search', '')
+        
+        if search:
+            query = """
+                SELECT c.*, 
+                       CASE WHEN e.Student_ID IS NOT NULL THEN true ELSE false END as is_enrolled
+                FROM Course c
+                LEFT JOIN Enrollment e ON c.Course_ID = e.Course_ID AND e.Student_ID = %s
+                WHERE LOWER(c.Name) LIKE LOWER(%s)
+                ORDER BY c.Name
+            """
+            courses = execute_query(query, (request.user_id, f'%{search}%'))
+        else:
+            query = """
+                SELECT c.*, 
+                       CASE WHEN e.Student_ID IS NOT NULL THEN true ELSE false END as is_enrolled
+                FROM Course c
+                LEFT JOIN Enrollment e ON c.Course_ID = e.Course_ID AND e.Student_ID = %s
+                ORDER BY c.Name
+            """
+            courses = execute_query(query, (request.user_id,))
+        
         return jsonify(courses), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -359,7 +373,7 @@ def get_my_courses_instructor():
             JOIN Teaches t ON c.Course_ID = t.Course_ID
             LEFT JOIN Enrollment e ON c.Course_ID = e.Course_ID
             WHERE t.Instructor_ID = %s
-            GROUP BY c.Course_ID, c.Name, c.Duration, c.Fees
+            GROUP BY c.Course_ID, c.Name, c.Duration, c.Fees, c.Description
             ORDER BY c.Name
         """
         courses = execute_query(query, (request.user_id,))
@@ -394,7 +408,7 @@ def get_course_details_instructor(course_id):
         
         # Get enrolled students
         students_query = """
-            SELECT u.Name, u.Email, s.Country, s.Skill_Level, e.Score, e.Enrollment_Date
+            SELECT u.User_ID, u.Name, u.Email, s.Country, s.Skill_Level, e.Score, e.Enrollment_Date
             FROM Users u
             JOIN Student s ON u.User_ID = s.Student_ID
             JOIN Enrollment e ON s.Student_ID = e.Student_ID
@@ -438,13 +452,14 @@ def update_course(course_id):
         name = data.get('name')
         duration = data.get('duration')
         fees = data.get('fees')
+        description = data.get('description', '')
         
         update_query = """
             UPDATE Course 
-            SET Name = %s, Duration = %s, Fees = %s
+            SET Name = %s, Duration = %s, Fees = %s, Description = %s
             WHERE Course_ID = %s
         """
-        execute_query(update_query, (name, duration, fees, course_id), fetch=False)
+        execute_query(update_query, (name, duration, fees, description, course_id), fetch=False)
         
         return jsonify({'message': 'Course updated successfully'}), 200
     except Exception as e:
@@ -460,6 +475,7 @@ def create_course():
         name = data.get('name')
         duration = data.get('duration')
         fees = data.get('fees')
+        description = data.get('description', '')
         collaborators = data.get('collaborators', [])  # List of instructor IDs
         
         if not all([name, duration, fees]):
@@ -476,10 +492,10 @@ def create_course():
         
         # Create course
         create_query = """
-            INSERT INTO Course (Course_ID, Name, Duration, Fees)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO Course (Course_ID, Name, Duration, Fees, Description)
+            VALUES (%s, %s, %s, %s, %s)
         """
-        execute_query(create_query, (course_id, name, duration, fees), fetch=False)
+        execute_query(create_query, (course_id, name, duration, fees, description), fetch=False)
         
         # Add creator as instructor
         teach_query = "INSERT INTO Teaches (Instructor_ID, Course_ID) VALUES (%s, %s)"
@@ -511,6 +527,26 @@ def get_all_instructors():
         """
         instructors = execute_query(query, (request.user_id,))
         return jsonify(instructors), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/instructor/course/<course_id>', methods=['DELETE'])
+@token_required
+@role_required(['Instructor'])
+def delete_course_instructor(course_id):
+    """Delete a course (only if instructor teaches it)"""
+    try:
+        # Check if instructor teaches this course
+        check_query = "SELECT * FROM Teaches WHERE Instructor_ID = %s AND Course_ID = %s"
+        teaches = execute_single(check_query, (request.user_id, course_id))
+        
+        if not teaches:
+            return jsonify({'error': 'You do not teach this course'}), 403
+        
+        delete_query = "DELETE FROM Course WHERE Course_ID = %s"
+        execute_query(delete_query, (course_id,), fetch=False)
+        
+        return jsonify({'message': 'Course deleted successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -552,6 +588,121 @@ def add_course_content(course_id):
         execute_query(link_query, (course_id, content_id), fetch=False)
         
         return jsonify({'message': 'Content added successfully'}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================
+# INSTRUCTOR: PROGRAM MANAGEMENT
+# ============================================
+
+@app.route('/api/instructor/programs', methods=['GET'])
+@token_required
+@role_required(['Instructor'])
+def get_programs_instructor():
+    """Get all programs"""
+    try:
+        programs_query = """
+            SELECT p.*, COUNT(DISTINCT po.Course_ID) as course_count
+            FROM Program p
+            LEFT JOIN Part_of po ON p.Program_ID = po.Program_ID
+            GROUP BY p.Program_ID, p.Name, p.Prog_Type, p.Duration
+            ORDER BY p.Name
+        """
+        programs = execute_query(programs_query)
+        
+        for program in programs:
+            courses_query = """
+                SELECT c.Course_ID, c.Name, c.Duration, c.Fees
+                FROM Course c
+                JOIN Part_of po ON c.Course_ID = po.Course_ID
+                WHERE po.Program_ID = %s
+                ORDER BY c.Name
+            """
+            program['courses'] = execute_query(courses_query, (program['program_id'],))
+        
+        return jsonify(programs), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/instructor/course/<course_id>/programs', methods=['GET'])
+@token_required
+@role_required(['Instructor'])
+def get_course_programs(course_id):
+    """Get programs a course belongs to"""
+    try:
+        # Check if instructor teaches this course
+        check_query = "SELECT * FROM Teaches WHERE Instructor_ID = %s AND Course_ID = %s"
+        teaches = execute_single(check_query, (request.user_id, course_id))
+        
+        if not teaches:
+            return jsonify({'error': 'You do not teach this course'}), 403
+        
+        # Get programs this course is part of
+        programs_query = """
+            SELECT p.* FROM Program p
+            JOIN Part_of po ON p.Program_ID = po.Program_ID
+            WHERE po.Course_ID = %s
+            ORDER BY p.Name
+        """
+        programs = execute_query(programs_query, (course_id,))
+        
+        # Get all programs for selection
+        all_programs_query = "SELECT * FROM Program ORDER BY Name"
+        all_programs = execute_query(all_programs_query)
+        
+        return jsonify({'course_programs': programs, 'all_programs': all_programs}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/instructor/course/<course_id>/programs', methods=['POST'])
+@token_required
+@role_required(['Instructor'])
+def add_course_to_program_instructor(course_id):
+    """Add a course to a program"""
+    try:
+        # Check if instructor teaches this course
+        check_query = "SELECT * FROM Teaches WHERE Instructor_ID = %s AND Course_ID = %s"
+        teaches = execute_single(check_query, (request.user_id, course_id))
+        
+        if not teaches:
+            return jsonify({'error': 'You do not teach this course'}), 403
+        
+        data = request.json
+        program_id = data.get('program_id')
+        
+        if not program_id:
+            return jsonify({'error': 'Program ID required'}), 400
+        
+        # Check if already in program
+        check_query = "SELECT * FROM Part_of WHERE Course_ID = %s AND Program_ID = %s"
+        existing = execute_single(check_query, (course_id, program_id))
+        if existing:
+            return jsonify({'error': 'Course already in this program'}), 400
+        
+        insert_query = "INSERT INTO Part_of (Course_ID, Program_ID) VALUES (%s, %s)"
+        execute_query(insert_query, (course_id, program_id), fetch=False)
+        
+        return jsonify({'message': 'Course added to program successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/instructor/course/<course_id>/programs/<program_id>', methods=['DELETE'])
+@token_required
+@role_required(['Instructor'])
+def remove_course_from_program_instructor(course_id, program_id):
+    """Remove a course from a program"""
+    try:
+        # Check if instructor teaches this course
+        check_query = "SELECT * FROM Teaches WHERE Instructor_ID = %s AND Course_ID = %s"
+        teaches = execute_single(check_query, (request.user_id, course_id))
+        
+        if not teaches:
+            return jsonify({'error': 'You do not teach this course'}), 403
+        
+        delete_query = "DELETE FROM Part_of WHERE Course_ID = %s AND Program_ID = %s"
+        execute_query(delete_query, (course_id, program_id), fetch=False)
+        
+        return jsonify({'message': 'Course removed from program'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -611,8 +762,8 @@ def get_statistics():
                 END as age_group,
                 COUNT(*) as count
             FROM Student
-            GROUP BY age_group
-            ORDER BY age_group
+            GROUP BY 1
+            ORDER BY 1
         """
         stats['age_distribution'] = execute_query(age_query)
         
@@ -770,7 +921,7 @@ def get_all_courses_admin():
             FROM Course c
             LEFT JOIN Enrollment e ON c.Course_ID = e.Course_ID
             LEFT JOIN Teaches t ON c.Course_ID = t.Course_ID
-            GROUP BY c.Course_ID, c.Name, c.Duration, c.Fees
+            GROUP BY c.Course_ID, c.Name, c.Duration, c.Fees, c.Description
             ORDER BY c.Name
         """
         courses = execute_query(query)
@@ -801,6 +952,7 @@ def create_course_admin():
         name = data.get('name')
         duration = data.get('duration')
         fees = data.get('fees')
+        description = data.get('description', '')
         instructors = data.get('instructors', [])
         
         if not all([name, duration, fees]):
@@ -817,10 +969,10 @@ def create_course_admin():
         
         # Create course
         create_query = """
-            INSERT INTO Course (Course_ID, Name, Duration, Fees)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO Course (Course_ID, Name, Duration, Fees, Description)
+            VALUES (%s, %s, %s, %s, %s)
         """
-        execute_query(create_query, (course_id, name, duration, fees), fetch=False)
+        execute_query(create_query, (course_id, name, duration, fees, description), fetch=False)
         
         # Add instructors
         teach_query = "INSERT INTO Teaches (Instructor_ID, Course_ID) VALUES (%s, %s)"
@@ -866,34 +1018,34 @@ def create_user_admin():
         
         # Generate user ID based on role
         if role == 'Student':
-            max_id_query = "SELECT User_ID FROM Student ORDER BY User_ID DESC LIMIT 1"
+            max_id_query = "SELECT Student_ID FROM Student ORDER BY Student_ID DESC LIMIT 1"
             max_id = execute_single(max_id_query)
-            if max_id and max_id['user_id']:
-                num = int(max_id['user_id'][3:]) + 1
+            if max_id and max_id['student_id']:
+                num = int(max_id['student_id'][3:]) + 1
             else:
                 num = 1
             user_id = f"STU{num:03d}"
         elif role == 'Instructor':
-            max_id_query = "SELECT User_ID FROM Instructor ORDER BY User_ID DESC LIMIT 1"
+            max_id_query = "SELECT Instructor_ID FROM Instructor ORDER BY Instructor_ID DESC LIMIT 1"
             max_id = execute_single(max_id_query)
-            if max_id and max_id['user_id']:
-                num = int(max_id['user_id'][3:]) + 1
+            if max_id and max_id['instructor_id']:
+                num = int(max_id['instructor_id'][3:]) + 1
             else:
                 num = 1
             user_id = f"INS{num:03d}"
         elif role == 'Data_Analyst':
-            max_id_query = "SELECT User_ID FROM Data_Analyst ORDER BY User_ID DESC LIMIT 1"
+            max_id_query = "SELECT Analyst_ID FROM Data_Analyst ORDER BY Analyst_ID DESC LIMIT 1"
             max_id = execute_single(max_id_query)
-            if max_id and max_id['user_id']:
-                num = int(max_id['user_id'][3:]) + 1
+            if max_id and max_id['analyst_id']:
+                num = int(max_id['analyst_id'][3:]) + 1
             else:
                 num = 1
             user_id = f"ANA{num:03d}"
         elif role == 'Administrator':
-            max_id_query = "SELECT User_ID FROM Administrator ORDER BY User_ID DESC LIMIT 1"
+            max_id_query = "SELECT Admin_ID FROM Administrator ORDER BY Admin_ID DESC LIMIT 1"
             max_id = execute_single(max_id_query)
-            if max_id and max_id['user_id']:
-                num = int(max_id['user_id'][3:]) + 1
+            if max_id and max_id['admin_id']:
+                num = int(max_id['admin_id'][3:]) + 1
             else:
                 num = 1
             user_id = f"ADM{num:03d}"
@@ -952,6 +1104,450 @@ def get_all_instructors_admin():
         """
         instructors = execute_query(query)
         return jsonify(instructors), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================
+# ADMIN: COURSE DETAIL & MANAGEMENT
+# ============================================
+
+@app.route('/api/admin/courses/<course_id>', methods=['GET'])
+@token_required
+@role_required(['Administrator'])
+def get_course_details_admin(course_id):
+    """Get detailed course info including students and instructors"""
+    try:
+        course_query = "SELECT * FROM Course WHERE Course_ID = %s"
+        course = execute_single(course_query, (course_id,))
+        
+        if not course:
+            return jsonify({'error': 'Course not found'}), 404
+        
+        # Get instructors
+        instructors_query = """
+            SELECT u.User_ID, u.Name, u.Email, i.Experience
+            FROM Users u
+            JOIN Instructor i ON u.User_ID = i.Instructor_ID
+            JOIN Teaches t ON i.Instructor_ID = t.Instructor_ID
+            WHERE t.Course_ID = %s
+        """
+        course['instructors'] = execute_query(instructors_query, (course_id,))
+        
+        # Get enrolled students
+        students_query = """
+            SELECT u.User_ID, u.Name, u.Email, s.Country, s.Skill_Level,
+                   e.Score, e.Enrollment_Date
+            FROM Users u
+            JOIN Student s ON u.User_ID = s.Student_ID
+            JOIN Enrollment e ON s.Student_ID = e.Student_ID
+            WHERE e.Course_ID = %s
+            ORDER BY u.Name
+        """
+        course['students'] = execute_query(students_query, (course_id,))
+        
+        # Get content
+        content_query = """
+            SELECT cc.* FROM Course_content cc
+            JOIN Includes i ON cc.Content_ID = i.Content_ID
+            WHERE i.Course_ID = %s
+            ORDER BY cc.Content_ID
+        """
+        course['content'] = execute_query(content_query, (course_id,))
+        
+        # Get topics
+        topics_query = """
+            SELECT t.* FROM Topic t
+            JOIN Covers cv ON t.Topic_ID = cv.Topic_ID
+            WHERE cv.Course_ID = %s
+        """
+        course['topics'] = execute_query(topics_query, (course_id,))
+        
+        # Get textbooks
+        textbooks_query = """
+            SELECT tb.* FROM Textbook tb
+            JOIN Reference r ON tb.ISBN = r.ISBN
+            WHERE r.Course_ID = %s
+        """
+        course['textbooks'] = execute_query(textbooks_query, (course_id,))
+        
+        # Get partner universities
+        universities_query = """
+            SELECT pu.* FROM Partner_University pu
+            JOIN Offers o ON pu.University_ID = o.University_ID
+            WHERE o.Course_ID = %s
+        """
+        course['universities'] = execute_query(universities_query, (course_id,))
+        
+        # Get programs
+        programs_query = """
+            SELECT p.* FROM Program p
+            JOIN Part_of po ON p.Program_ID = po.Program_ID
+            WHERE po.Course_ID = %s
+        """
+        course['programs'] = execute_query(programs_query, (course_id,))
+        
+        return jsonify(course), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/courses/<course_id>/instructors', methods=['POST'])
+@token_required
+@role_required(['Administrator'])
+def assign_instructor(course_id):
+    """Assign an instructor to a course"""
+    try:
+        data = request.json
+        instructor_id = data.get('instructor_id')
+        
+        if not instructor_id:
+            return jsonify({'error': 'Instructor ID required'}), 400
+        
+        # Check if already assigned
+        check_query = "SELECT * FROM Teaches WHERE Instructor_ID = %s AND Course_ID = %s"
+        existing = execute_single(check_query, (instructor_id, course_id))
+        if existing:
+            return jsonify({'error': 'Instructor already assigned to this course'}), 400
+        
+        insert_query = "INSERT INTO Teaches (Instructor_ID, Course_ID) VALUES (%s, %s)"
+        execute_query(insert_query, (instructor_id, course_id), fetch=False)
+        
+        return jsonify({'message': 'Instructor assigned successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/courses/<course_id>/instructors/<instructor_id>', methods=['DELETE'])
+@token_required
+@role_required(['Administrator'])
+def remove_instructor(course_id, instructor_id):
+    """Remove an instructor from a course"""
+    try:
+        delete_query = "DELETE FROM Teaches WHERE Instructor_ID = %s AND Course_ID = %s"
+        execute_query(delete_query, (instructor_id, course_id), fetch=False)
+        
+        return jsonify({'message': 'Instructor removed successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/courses/<course_id>/students', methods=['POST'])
+@token_required
+@role_required(['Administrator'])
+def admin_enroll_student(course_id):
+    """Enroll a student in a course (admin)"""
+    try:
+        data = request.json
+        student_id = data.get('student_id')
+        
+        if not student_id:
+            return jsonify({'error': 'Student ID required'}), 400
+        
+        # Check if already enrolled
+        check_query = "SELECT * FROM Enrollment WHERE Student_ID = %s AND Course_ID = %s"
+        existing = execute_single(check_query, (student_id, course_id))
+        if existing:
+            return jsonify({'error': 'Student already enrolled in this course'}), 400
+        
+        enroll_query = """
+            INSERT INTO Enrollment (Student_ID, Course_ID, Enrollment_Date, Score)
+            VALUES (%s, %s, %s, NULL)
+        """
+        execute_query(enroll_query, (student_id, course_id, datetime.now().date()), fetch=False)
+        
+        return jsonify({'message': 'Student enrolled successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/courses/<course_id>/students/<student_id>', methods=['DELETE'])
+@token_required
+@role_required(['Administrator'])
+def admin_unenroll_student(course_id, student_id):
+    """Remove a student from a course (admin)"""
+    try:
+        delete_query = "DELETE FROM Enrollment WHERE Student_ID = %s AND Course_ID = %s"
+        execute_query(delete_query, (student_id, course_id), fetch=False)
+        
+        return jsonify({'message': 'Student removed successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/students', methods=['GET'])
+@token_required
+@role_required(['Administrator'])
+def get_all_students_admin():
+    """Get all students for admin"""
+    try:
+        query = """
+            SELECT u.User_ID, u.Name, u.Email, s.Country, s.Category, s.Skill_Level, s.Age
+            FROM Users u
+            JOIN Student s ON u.User_ID = s.Student_ID
+            ORDER BY u.Name
+        """
+        students = execute_query(query)
+        return jsonify(students), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================
+# ADMIN: UNIVERSITY MANAGEMENT
+# ============================================
+
+@app.route('/api/admin/universities', methods=['GET'])
+@token_required
+@role_required(['Administrator'])
+def get_all_universities():
+    """Get all partner universities with course counts"""
+    try:
+        query = """
+            SELECT pu.*, COUNT(DISTINCT o.Course_ID) as course_count
+            FROM Partner_University pu
+            LEFT JOIN Offers o ON pu.University_ID = o.University_ID
+            GROUP BY pu.University_ID, pu.Name
+            ORDER BY pu.Name
+        """
+        universities = execute_query(query)
+        
+        # Get courses for each university
+        for uni in universities:
+            courses_query = """
+                SELECT c.Course_ID, c.Name
+                FROM Course c
+                JOIN Offers o ON c.Course_ID = o.Course_ID
+                WHERE o.University_ID = %s
+                ORDER BY c.Name
+            """
+            uni['courses'] = execute_query(courses_query, (uni['university_id'],))
+        
+        return jsonify(universities), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/universities', methods=['POST'])
+@token_required
+@role_required(['Administrator'])
+def create_university():
+    """Create a partner university"""
+    try:
+        data = request.json
+        name = data.get('name')
+        
+        if not name:
+            return jsonify({'error': 'University name required'}), 400
+        
+        # Generate ID
+        max_id_query = "SELECT University_ID FROM Partner_University ORDER BY University_ID DESC LIMIT 1"
+        max_id = execute_single(max_id_query)
+        if max_id and max_id['university_id']:
+            num = int(max_id['university_id'][3:]) + 1
+        else:
+            num = 1
+        university_id = f"UNI{num:03d}"
+        
+        insert_query = "INSERT INTO Partner_University (University_ID, Name) VALUES (%s, %s)"
+        execute_query(insert_query, (university_id, name), fetch=False)
+        
+        return jsonify({'message': 'University created successfully', 'university_id': university_id}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/universities/<university_id>', methods=['DELETE'])
+@token_required
+@role_required(['Administrator'])
+def delete_university(university_id):
+    """Delete a partner university"""
+    try:
+        delete_query = "DELETE FROM Partner_University WHERE University_ID = %s"
+        execute_query(delete_query, (university_id,), fetch=False)
+        
+        return jsonify({'message': 'University deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/universities/<university_id>/courses', methods=['POST'])
+@token_required
+@role_required(['Administrator'])
+def assign_course_to_university(university_id):
+    """Assign a course to a university (Offers)"""
+    try:
+        data = request.json
+        course_id = data.get('course_id')
+        
+        if not course_id:
+            return jsonify({'error': 'Course ID required'}), 400
+        
+        check_query = "SELECT * FROM Offers WHERE University_ID = %s AND Course_ID = %s"
+        existing = execute_single(check_query, (university_id, course_id))
+        if existing:
+            return jsonify({'error': 'Course already offered by this university'}), 400
+        
+        insert_query = "INSERT INTO Offers (University_ID, Course_ID) VALUES (%s, %s)"
+        execute_query(insert_query, (university_id, course_id), fetch=False)
+        
+        return jsonify({'message': 'Course assigned to university successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/universities/<university_id>/courses/<course_id>', methods=['DELETE'])
+@token_required
+@role_required(['Administrator'])
+def remove_course_from_university(university_id, course_id):
+    """Remove a course from a university"""
+    try:
+        delete_query = "DELETE FROM Offers WHERE University_ID = %s AND Course_ID = %s"
+        execute_query(delete_query, (university_id, course_id), fetch=False)
+        
+        return jsonify({'message': 'Course removed from university'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================
+# ADMIN: PROGRAM MANAGEMENT
+# ============================================
+
+@app.route('/api/admin/programs', methods=['GET'])
+@token_required
+@role_required(['Administrator'])
+def get_all_programs_admin():
+    """Get all programs with their courses"""
+    try:
+        programs_query = """
+            SELECT p.*, COUNT(DISTINCT po.Course_ID) as course_count
+            FROM Program p
+            LEFT JOIN Part_of po ON p.Program_ID = po.Program_ID
+            GROUP BY p.Program_ID, p.Name, p.Prog_Type, p.Duration
+            ORDER BY p.Name
+        """
+        programs = execute_query(programs_query)
+        
+        for program in programs:
+            courses_query = """
+                SELECT c.Course_ID, c.Name, c.Duration, c.Fees
+                FROM Course c
+                JOIN Part_of po ON c.Course_ID = po.Course_ID
+                WHERE po.Program_ID = %s
+                ORDER BY c.Name
+            """
+            program['courses'] = execute_query(courses_query, (program['program_id'],))
+        
+        return jsonify(programs), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/programs', methods=['POST'])
+@token_required
+@role_required(['Administrator'])
+def create_program():
+    """Create a new program"""
+    try:
+        data = request.json
+        name = data.get('name')
+        prog_type = data.get('prog_type')
+        duration = data.get('duration')
+        
+        if not all([name, prog_type, duration]):
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        # Generate ID
+        max_id_query = "SELECT Program_ID FROM Program ORDER BY Program_ID DESC LIMIT 1"
+        max_id = execute_single(max_id_query)
+        if max_id and max_id['program_id']:
+            num = int(max_id['program_id'][3:]) + 1
+        else:
+            num = 1
+        program_id = f"PRG{num:03d}"
+        
+        insert_query = """
+            INSERT INTO Program (Program_ID, Name, Prog_Type, Duration)
+            VALUES (%s, %s, %s, %s)
+        """
+        execute_query(insert_query, (program_id, name, prog_type, duration), fetch=False)
+        
+        return jsonify({'message': 'Program created successfully', 'program_id': program_id}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/programs/<program_id>', methods=['DELETE'])
+@token_required
+@role_required(['Administrator'])
+def delete_program(program_id):
+    """Delete a program"""
+    try:
+        delete_query = "DELETE FROM Program WHERE Program_ID = %s"
+        execute_query(delete_query, (program_id,), fetch=False)
+        
+        return jsonify({'message': 'Program deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/programs/<program_id>/courses', methods=['POST'])
+@token_required
+@role_required(['Administrator'])
+def add_course_to_program(program_id):
+    """Add a course to a program"""
+    try:
+        data = request.json
+        course_id = data.get('course_id')
+        
+        if not course_id:
+            return jsonify({'error': 'Course ID required'}), 400
+        
+        check_query = "SELECT * FROM Part_of WHERE Course_ID = %s AND Program_ID = %s"
+        existing = execute_single(check_query, (course_id, program_id))
+        if existing:
+            return jsonify({'error': 'Course already in this program'}), 400
+        
+        insert_query = "INSERT INTO Part_of (Course_ID, Program_ID) VALUES (%s, %s)"
+        execute_query(insert_query, (course_id, program_id), fetch=False)
+        
+        return jsonify({'message': 'Course added to program successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/programs/<program_id>/courses/<course_id>', methods=['DELETE'])
+@token_required
+@role_required(['Administrator'])
+def remove_course_from_program(program_id, course_id):
+    """Remove a course from a program"""
+    try:
+        delete_query = "DELETE FROM Part_of WHERE Course_ID = %s AND Program_ID = %s"
+        execute_query(delete_query, (course_id, program_id), fetch=False)
+        
+        return jsonify({'message': 'Course removed from program'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================
+# INSTRUCTOR: SCORE MANAGEMENT
+# ============================================
+
+@app.route('/api/instructor/course/<course_id>/score', methods=['PUT'])
+@token_required
+@role_required(['Instructor'])
+def update_student_score(course_id):
+    """Update a student's score in a course"""
+    try:
+        # Check if instructor teaches this course
+        check_query = "SELECT * FROM Teaches WHERE Instructor_ID = %s AND Course_ID = %s"
+        teaches = execute_single(check_query, (request.user_id, course_id))
+        
+        if not teaches:
+            return jsonify({'error': 'You do not teach this course'}), 403
+        
+        data = request.json
+        student_id = data.get('student_id')
+        score = data.get('score')
+        
+        if not student_id or score is None:
+            return jsonify({'error': 'Student ID and score required'}), 400
+        
+        if not (0 <= int(score) <= 100):
+            return jsonify({'error': 'Score must be between 0 and 100'}), 400
+        
+        update_query = """
+            UPDATE Enrollment SET Score = %s
+            WHERE Student_ID = %s AND Course_ID = %s
+        """
+        execute_query(update_query, (int(score), student_id, course_id), fetch=False)
+        
+        return jsonify({'message': 'Score updated successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

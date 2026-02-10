@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { authAPI } from '../services/api';
 
 function Register() {
@@ -19,10 +20,10 @@ function Register() {
     // Instructor-specific
     experience: '',
   });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const handleChange = (e) => {
     setFormData({
@@ -33,16 +34,15 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
     // Validation
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      showToast('Passwords do not match', 'error');
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+      showToast('Password must be at least 6 characters', 'error');
       return;
     }
 
@@ -88,7 +88,7 @@ function Register() {
           navigate('/');
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed. Please try again.');
+      showToast(err.response?.data?.error || 'Registration failed. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -101,12 +101,6 @@ function Register() {
           <h1 className="auth-title">Create Account</h1>
           <p className="auth-subtitle">Join our educational platform</p>
         </div>
-
-        {error && (
-          <div className="alert alert-error">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">

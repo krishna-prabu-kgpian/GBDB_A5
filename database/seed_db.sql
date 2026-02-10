@@ -82,12 +82,12 @@ INSERT INTO Program (Program_ID, Name, Prog_Type, Duration) VALUES
 -- ============================================
 -- COURSES
 -- ============================================
-INSERT INTO Course (Course_ID, Name, Duration, Fees) VALUES
-('CRS001', 'Introduction to Programming', 8, 199),
-('CRS002', 'Data Structures and Algorithms', 10, 249),
-('CRS003', 'Machine Learning Fundamentals', 12, 349),
-('CRS004', 'Web Development with React', 8, 229),
-('CRS005', 'Database Design and SQL', 6, 179);
+INSERT INTO Course (Course_ID, Name, Duration, Fees, Description) VALUES
+('CRS001', 'Introduction to Programming', 8, 199, 'Learn the fundamentals of programming using Python. Covers variables, control structures, functions, and basic data types.'),
+('CRS002', 'Data Structures and Algorithms', 10, 249, 'Master essential data structures and algorithms including arrays, linked lists, trees, graphs, sorting, and searching techniques.'),
+('CRS003', 'Machine Learning Fundamentals', 12, 349, 'An introduction to machine learning concepts including supervised and unsupervised learning, neural networks, and model evaluation.'),
+('CRS004', 'Web Development with React', 8, 229, 'Build modern web applications using React. Covers components, state management, hooks, routing, and API integration.'),
+('CRS005', 'Database Design and SQL', 6, 179, 'Learn relational database design principles, SQL querying, normalization, indexing, and transaction management.');
 
 -- ============================================
 -- TOPICS

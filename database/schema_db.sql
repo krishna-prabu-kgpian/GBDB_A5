@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS Users, Student, Instructor, Data_Analyst, Administrator, Partner_University, Program,
+Course, Topic, Textbook, Course_content, Enrollment, Teaches, Offers, Part_of, Reference, Covers, Includes;
+
 CREATE TABLE Users (
     User_ID VARCHAR(20) PRIMARY KEY,
     Username VARCHAR(255) NOT NULL UNIQUE,
@@ -48,7 +51,8 @@ CREATE TABLE Course (
     Course_ID VARCHAR(20) PRIMARY KEY,
     Name VARCHAR(255) NOT NULL,
     Duration INT,
-    Fees INT
+    Fees INT,
+    Description VARCHAR(500)
 );
 
 CREATE TABLE Topic (

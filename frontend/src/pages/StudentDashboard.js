@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { studentAPI } from '../services/api';
-import { BookOpen, GraduationCap, BarChart3, LogOut } from 'lucide-react';
+import { BookOpen, GraduationCap, LogOut } from 'lucide-react';
 
 function DashboardOverview() {
   const { user } = useAuth();
@@ -26,12 +27,6 @@ function DashboardOverview() {
       title: 'My Courses',
       description: 'View courses you are enrolled in',
       path: '/student/my-courses'
-    },
-    {
-      icon: <BarChart3 size={48} />,
-      title: 'My Progress',
-      description: 'Track your learning progress',
-      path: '/student/progress'
     }
   ];
 
@@ -75,6 +70,9 @@ function StudentNavbar() {
         Educational Platform
       </Link>
       <div className="navbar-nav">
+        <Link to="/student/programs" className="nav-link">Programs</Link>
+        <Link to="/student/all-courses" className="nav-link">All Courses</Link>
+        <Link to="/student/my-courses" className="nav-link">My Courses</Link>
         <button onClick={handleLogout} className="btn btn-sm btn-danger">
           <LogOut size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
           Logout
@@ -87,32 +85,39 @@ function StudentNavbar() {
 function AllCourses() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchCourses();
   }, []);
 
-  const fetchCourses = async () => {
+  const fetchCourses = async (search = '') => {
     try {
-      const response = await studentAPI.getAllCourses();
+      const response = await studentAPI.getAllCourses(search);
       setCourses(response.data);
     } catch (err) {
-      setMessage('Error loading courses');
+      showToast('Error loading courses', 'error');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    fetchCourses(searchTerm);
+  };
+
   const handleEnroll = async (courseId) => {
     try {
       await studentAPI.enrollCourse(courseId);
-      setMessage('Successfully enrolled!');
+      showToast('Successfully enrolled!', 'success');
       fetchCourses();
-      setTimeout(() => setMessage(''), 3000);
     } catch (err) {
-      setMessage(err.response?.data?.error || 'Error enrolling in course');
+      showToast(err.response?.data?.error || 'Error enrolling in course', 'error');
     }
   };
 
@@ -123,11 +128,10 @@ function AllCourses() {
     
     try {
       await studentAPI.unenrollCourse(courseId);
-      setMessage('Successfully unenrolled');
+      showToast('Successfully unenrolled', 'success');
       fetchCourses();
-      setTimeout(() => setMessage(''), 3000);
     } catch (err) {
-      setMessage(err.response?.data?.error || 'Error unenrolling from course');
+      showToast(err.response?.data?.error || 'Error unenrolling from course', 'error');
     }
   };
 
@@ -144,11 +148,25 @@ function AllCourses() {
     <div className="paper-container">
       <h1>All Courses</h1>
       
-      {message && (
-        <div className={`alert ${message.includes('Error') ? 'alert-error' : 'alert-success'}`}>
-          {message}
+      {/* Search Bar */}
+      <form onSubmit={handleSearch} className="card mb-4">
+        <div className="card-body">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search courses by name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <button type="submit" className="btn btn-primary">Search</button>
+            {searchTerm && (
+              <button type="button" onClick={() => { setSearchTerm(''); setLoading(true); fetchCourses(''); }} className="btn">Clear</button>
+            )}
+          </div>
         </div>
-      )}
+      </form>
 
       <div className="grid">
         {courses.map((course) => (
@@ -162,6 +180,9 @@ function AllCourses() {
             <div className="card-body">
               <p><strong>Duration:</strong> {course.duration} weeks</p>
               <p><strong>Fees:</strong> ${course.fees}</p>
+              {course.description && (
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>{course.description.length > 100 ? course.description.substring(0, 100) + '...' : course.description}</p>
+              )}
             </div>
             <div className="card-footer">
               <button
@@ -277,6 +298,7 @@ function CourseDetails() {
   const navigate = useNavigate();
   const courseId = window.location.pathname.split('/').pop();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchCourseDetails();
   }, [courseId]);
@@ -330,6 +352,9 @@ function CourseDetails() {
         <div>
           <h1 style={{ marginBottom: '16px' }}>{course.name}</h1>
           <p><strong>Duration:</strong> {course.duration} weeks | <strong>Fees:</strong> ${course.fees}</p>
+          {course.description && (
+            <p style={{ color: 'var(--text-secondary)', marginTop: '8px', fontStyle: 'italic' }}>{course.description}</p>
+          )}
           {course.enrollment_date && (
             <p><strong>Enrolled On:</strong> {new Date(course.enrollment_date).toLocaleDateString()}</p>
           )}
@@ -429,10 +454,11 @@ function CourseDetails() {
 function Programs() {
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
   const [expandedPrograms, setExpandedPrograms] = useState({});
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchPrograms();
   }, []);
@@ -448,7 +474,7 @@ function Programs() {
       });
       setExpandedPrograms(expanded);
     } catch (err) {
-      setMessage('Error loading programs');
+      showToast('Error loading programs', 'error');
     } finally {
       setLoading(false);
     }
@@ -464,11 +490,10 @@ function Programs() {
   const handleEnroll = async (courseId) => {
     try {
       await studentAPI.enrollCourse(courseId);
-      setMessage('Successfully enrolled!');
+      showToast('Successfully enrolled!', 'success');
       fetchPrograms();
-      setTimeout(() => setMessage(''), 3000);
     } catch (err) {
-      setMessage(err.response?.data?.error || 'Error enrolling in course');
+      showToast(err.response?.data?.error || 'Error enrolling in course', 'error');
     }
   };
 
@@ -479,11 +504,10 @@ function Programs() {
     
     try {
       await studentAPI.unenrollCourse(courseId);
-      setMessage('Successfully unenrolled');
+      showToast('Successfully unenrolled', 'success');
       fetchPrograms();
-      setTimeout(() => setMessage(''), 3000);
     } catch (err) {
-      setMessage(err.response?.data?.error || 'Error unenrolling from course');
+      showToast(err.response?.data?.error || 'Error unenrolling from course', 'error');
     }
   };
 
@@ -500,12 +524,6 @@ function Programs() {
     <div className="paper-container">
       <h1>Programs</h1>
       <p className="mb-4">Browse programs and enroll in courses</p>
-      
-      {message && (
-        <div className={`alert ${message.includes('Error') ? 'alert-error' : 'alert-success'}`}>
-          {message}
-        </div>
-      )}
 
       {programs.length === 0 ? (
         <div className="alert alert-info">No programs available at the moment.</div>
@@ -514,7 +532,7 @@ function Programs() {
           {programs.map((program) => (
             <div key={program.program_id} className="card mb-4">
               <div 
-                className="card-header flex-between" 
+                className="card-header flex-between"
                 style={{ cursor: 'pointer' }}
                 onClick={() => toggleProgram(program.program_id)}
               >
@@ -597,7 +615,6 @@ function StudentDashboard() {
         <Route path="/programs" element={<Programs />} />
         <Route path="/all-courses" element={<AllCourses />} />
         <Route path="/my-courses" element={<MyCourses />} />
-        <Route path="/progress" element={<MyCourses />} />
         <Route path="/course/:courseId" element={<CourseDetails />} />
       </Routes>
     </>

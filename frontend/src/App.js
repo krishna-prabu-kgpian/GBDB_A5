@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import './App.css';
 
 // Pages
@@ -60,52 +61,54 @@ const HomeRedirect = () => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="app">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            
-            <Route path="/" element={<HomeRedirect />} />
-            
-            <Route
-              path="/student/*"
-              element={
-                <ProtectedRoute allowedRoles={['Student']}>
-                  <StudentDashboard />
-                </ProtectedRoute>
-              }
-            />
-            
-            <Route
-              path="/instructor/*"
-              element={
-                <ProtectedRoute allowedRoles={['Instructor']}>
-                  <InstructorDashboard />
-                </ProtectedRoute>
-              }
-            />
-            
-            <Route
-              path="/analyst"
-              element={
-                <ProtectedRoute allowedRoles={['Data_Analyst']}>
-                  <AnalystDashboard />
-                </ProtectedRoute>
-              }
-            />
-            
-            <Route
-              path="/admin/*"
-              element={
-                <ProtectedRoute allowedRoles={['Administrator']}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </div>
-      </Router>
+      <ToastProvider>
+        <Router>
+          <div className="app">
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              
+              <Route path="/" element={<HomeRedirect />} />
+              
+              <Route
+                path="/student/*"
+                element={
+                  <ProtectedRoute allowedRoles={['Student']}>
+                    <StudentDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              
+              <Route
+                path="/instructor/*"
+                element={
+                  <ProtectedRoute allowedRoles={['Instructor']}>
+                    <InstructorDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              
+              <Route
+                path="/analyst"
+                element={
+                  <ProtectedRoute allowedRoles={['Data_Analyst']}>
+                    <AnalystDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              
+              <Route
+                path="/admin/*"
+                element={
+                  <ProtectedRoute allowedRoles={['Administrator']}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </div>
+        </Router>
+      </ToastProvider>
     </AuthProvider>
   );
 }

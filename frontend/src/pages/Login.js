@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { authAPI } from '../services/api';
 
 function Login() {
@@ -8,10 +9,10 @@ function Login() {
     username: '',
     password: '',
   });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const handleChange = (e) => {
     setFormData({
@@ -22,7 +23,6 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
@@ -47,7 +47,7 @@ function Login() {
           navigate('/');
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed. Please try again.');
+      showToast(err.response?.data?.error || 'Login failed. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -60,12 +60,6 @@ function Login() {
           <h1 className="auth-title">Educational Platform</h1>
           <p className="auth-subtitle">Sign in to your account</p>
         </div>
-
-        {error && (
-          <div className="alert alert-error">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">

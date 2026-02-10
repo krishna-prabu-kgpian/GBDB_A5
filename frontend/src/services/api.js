@@ -34,8 +34,8 @@ export const authAPI = {
 
 // Student API
 export const studentAPI = {
-  getAllCourses: () => 
-    api.get('/student/courses'),
+  getAllCourses: (search = '') => 
+    api.get('/student/courses', { params: search ? { search } : {} }),
   
   getCourseDetails: (courseId) => 
     api.get(`/student/courses/${courseId}`),
@@ -67,6 +67,9 @@ export const instructorAPI = {
   updateCourse: (courseId, data) => 
     api.put(`/instructor/course/${courseId}`, data),
   
+  deleteCourse: (courseId) =>
+    api.delete(`/instructor/course/${courseId}`),
+  
   createCourse: (data) => 
     api.post('/instructor/course', data),
   
@@ -75,6 +78,22 @@ export const instructorAPI = {
   
   getAllInstructors: () => 
     api.get('/instructor/list'),
+
+  updateScore: (courseId, studentId, score) =>
+    api.put(`/instructor/course/${courseId}/score`, { student_id: studentId, score }),
+
+  // Program management
+  getPrograms: () =>
+    api.get('/instructor/programs'),
+
+  getCoursePrograms: (courseId) =>
+    api.get(`/instructor/course/${courseId}/programs`),
+
+  addCourseToProgram: (courseId, programId) =>
+    api.post(`/instructor/course/${courseId}/programs`, { program_id: programId }),
+
+  removeCourseFromProgram: (courseId, programId) =>
+    api.delete(`/instructor/course/${courseId}/programs/${programId}`),
 };
 
 // Data Analyst API
@@ -97,6 +116,9 @@ export const adminAPI = {
   getAllCourses: () => 
     api.get('/admin/courses'),
   
+  getCourseDetails: (courseId) =>
+    api.get(`/admin/courses/${courseId}`),
+  
   deleteCourse: (courseId) => 
     api.delete(`/admin/courses/${courseId}`),
   
@@ -108,6 +130,53 @@ export const adminAPI = {
   
   getAllInstructors: () => 
     api.get('/admin/instructors'),
+
+  getAllStudents: () =>
+    api.get('/admin/students'),
+
+  assignInstructor: (courseId, instructorId) =>
+    api.post(`/admin/courses/${courseId}/instructors`, { instructor_id: instructorId }),
+
+  removeInstructor: (courseId, instructorId) =>
+    api.delete(`/admin/courses/${courseId}/instructors/${instructorId}`),
+
+  enrollStudent: (courseId, studentId) =>
+    api.post(`/admin/courses/${courseId}/students`, { student_id: studentId }),
+
+  unenrollStudent: (courseId, studentId) =>
+    api.delete(`/admin/courses/${courseId}/students/${studentId}`),
+
+  // University management
+  getAllUniversities: () =>
+    api.get('/admin/universities'),
+
+  createUniversity: (data) =>
+    api.post('/admin/universities', data),
+
+  deleteUniversity: (universityId) =>
+    api.delete(`/admin/universities/${universityId}`),
+
+  assignCourseToUniversity: (universityId, courseId) =>
+    api.post(`/admin/universities/${universityId}/courses`, { course_id: courseId }),
+
+  removeCourseFromUniversity: (universityId, courseId) =>
+    api.delete(`/admin/universities/${universityId}/courses/${courseId}`),
+
+  // Program management
+  getAllPrograms: () =>
+    api.get('/admin/programs'),
+
+  createProgram: (data) =>
+    api.post('/admin/programs', data),
+
+  deleteProgram: (programId) =>
+    api.delete(`/admin/programs/${programId}`),
+
+  addCourseToProgram: (programId, courseId) =>
+    api.post(`/admin/programs/${programId}/courses`, { course_id: courseId }),
+
+  removeCourseFromProgram: (programId, courseId) =>
+    api.delete(`/admin/programs/${programId}/courses/${courseId}`),
 };
 
 export default api;
