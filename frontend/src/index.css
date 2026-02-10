@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', 
+    'Source Code Pro', 'Courier New', monospace;
+  background: rgba(102, 126, 234, 0.15);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  color: var(--accent-teal);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
